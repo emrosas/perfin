@@ -2,14 +2,11 @@
 	import { useQuery, useConvexClient } from 'convex-svelte';
 	import { api } from '@perfin/backend/convex/_generated/api';
 	import AddTransaction from '../components/addTransaction.svelte';
+	import MonthlyBalance from '../components/monthlyBalance.svelte';
 	import type { Id } from '@perfin/backend/convex/_generated/dataModel';
 
 	const client = useConvexClient();
 	const listTransactions = useQuery(api.transactions.getTransactions);
-	const getMonthlyBalance = useQuery(api.transactions.getMonthlyBalance, {
-		monthStart: new Date('2025-12-01').toISOString().split('T')[0],
-		monthEnd: new Date('2025-12-31').toISOString().split('T')[0]
-	});
 
 	async function handleDelete(transactionId: Id<'transactions'>) {
 		await client.mutation(api.transactions.deleteTransaction, { id: transactionId });
@@ -19,13 +16,7 @@
 <div class="p-4">
 	<h1 class="mb-4 text-2xl font-semibold">Perfin</h1>
 	<AddTransaction />
-	{#if getMonthlyBalance.isLoading}
-		<p>Getting Balance...</p>
-	{:else if getMonthlyBalance.error}
-		<p>Error: {getMonthlyBalance.error.toString()}</p>
-	{:else}
-		<p>Monthly Balance: {getMonthlyBalance.data}</p>
-	{/if}
+	<MonthlyBalance />
 	{#if listTransactions.isLoading}
 		<p>Getting Transactions...</p>
 	{:else if listTransactions.error}
