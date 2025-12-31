@@ -8,6 +8,7 @@ export default defineSchema({
   transactions: defineTable({
     amount: v.number(),
     category: v.union(v.literal("income"), v.literal("expense")),
+    description: v.string(),
     date: v.string()
   })
 })

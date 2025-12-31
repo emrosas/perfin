@@ -1,4 +1,6 @@
 <script lang="ts">
+	import AddIcon from './icons/add.svelte';
+
 	import { useConvexClient } from 'convex-svelte';
 	import { api } from '@perfin/backend/convex/_generated/api';
 
@@ -6,11 +8,13 @@
 
 	let amount = $state(0);
 	let category = $state<'income' | 'expense'>('income');
+	let description = $state('');
 	let date = $state(new Date().toISOString().split('T')[0]);
 
 	function resetForm() {
 		amount = 0;
 		category = 'income';
+		description = '';
 		date = new Date().toISOString().split('T')[0];
 	}
 
@@ -26,10 +30,10 @@
 				transaction: {
 					amount: Math.abs(amount),
 					category,
+					description,
 					date
 				}
 			});
-			alert(`Transaction with ID ${id} created!`);
 			dialog.close();
 			resetForm();
 		} catch (error) {
@@ -41,9 +45,9 @@
 <dialog
 	bind:this={dialog}
 	closedby="any"
-	class="fixed top-1/2 left-1/2 m-0 w-2xl max-w-screen -translate-1/2"
+	class="fixed top-1/2 left-1/2 m-0 w-2xl max-w-[calc(100vw-2rem)] -translate-1/2 bg-transparent"
 >
-	<div class="border border-slate-400 p-4">
+	<div class="border border-slate-400 bg-white p-4">
 		<h2 class="mb-2 text-lg font-medium">Add Transaction</h2>
 		<form onsubmit={handleSubmit}>
 			<div class="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-2">
@@ -54,6 +58,17 @@
 						type="number"
 						id="amount"
 						bind:value={amount}
+						required
+					/>
+				</label>
+
+				<label for="description" class="flex flex-col gap-1">
+					Description
+					<input
+						class="min-h-12 border border-slate-400 px-2 py-1"
+						type="text"
+						id="description"
+						bind:value={description}
 						required
 					/>
 				</label>
@@ -90,6 +105,6 @@
 <button
 	aria-label="Add Transaction"
 	onclick={() => dialog.showModal()}
-	class="fixed right-4 bottom-4 flex size-12 cursor-pointer items-center justify-center rounded-full bg-slate-800 text-xl leading-0 text-white transition hover:bg-black"
-	>+</button
+	class="fixed right-4 bottom-4 grid size-12 cursor-pointer place-items-center rounded-full bg-dark-alt text-light transition hover:bg-brand"
+	><AddIcon class="size-6 transition" /></button
 >

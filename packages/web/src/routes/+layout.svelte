@@ -8,5 +8,9 @@
 	setupConvex(PUBLIC_CONVEX_URL);
 </script>
 
-<svelte:head><link rel="icon" href={favicon} /></svelte:head>
+<svelte:head>
+	<link rel="icon" href={favicon} />
+	<title>Perfin</title>
+	<meta name="robots" content="noindex, nofollow" />
+</svelte:head>
 {@render children()}
