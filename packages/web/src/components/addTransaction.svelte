@@ -6,7 +6,7 @@
 
 	let dialog: HTMLDialogElement;
 
-	let amount = $state(0);
+	let amount = $state();
 	let category = $state<'income' | 'expense'>('income');
 	let description = $state('');
 	let date = $state(new Date().toISOString().split('T')[0]);
@@ -28,7 +28,7 @@
 			}
 			await convexClient.mutation(api.transactions.createTransaction, {
 				transaction: {
-					amount: Math.abs(amount),
+					amount: Math.abs(amount as number),
 					category,
 					description,
 					date
@@ -97,14 +97,15 @@
 			<button
 				type="submit"
 				class="mt-4 w-full cursor-pointer rounded-sm bg-purple-200 p-2 text-purple-900 transition hover:bg-purple-300"
-				>Create Transaction</button
 			>
+				Create Transaction
+			</button>
 		</form>
 	</div>
 </dialog>
 <button
 	aria-label="Add Transaction"
 	onclick={() => dialog.showModal()}
-	class="fixed right-4 bottom-4 z-50 grid size-12 cursor-pointer place-items-center rounded-full bg-dark-alt text-light transition hover:bg-brand"
+	class=" grid size-12 cursor-pointer place-items-center rounded-full bg-dark-alt text-light transition hover:bg-brand"
 	><AddIcon class="size-6 transition" /></button
 >

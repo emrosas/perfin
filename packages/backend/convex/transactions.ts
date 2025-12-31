@@ -1,12 +1,22 @@
 import schema from "./schema";
-import {  aggregateMonthlyBalanceByUser } from "./schema";
+import {  aggregateMonthlyBalanceByUser, aggregateMonthlyTransactionsByUser } from "./schema";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
-export const getTransactions = query({
-  args: {},
-  handler: async (ctx) => {
-    const transactions = await ctx.db.query("transactions").collect();
+export const listMonthlyTransactions = query({
+  args: {
+    monthStart: v.string(),
+    monthEnd: v.string()
+  },
+  handler: async (ctx, {monthStart, monthEnd}) => {
+    const page = await aggregateMonthlyTransactionsByUser.paginate(ctx, {
+      bounds: {
+        lower: {key: monthStart, inclusive: true},
+        upper: {key: monthEnd, inclusive: true}
+      },
+      pageSize: 100
+    })
+    const transactions = await Promise.all(page.page.map((doc) => ctx.db.get(doc.id)))
     return transactions
   },
 });
@@ -35,6 +45,7 @@ export const createTransaction = mutation({
     })
     const doc = await ctx.db.get(id)
     await  aggregateMonthlyBalanceByUser.insert(ctx, doc!)
+    await aggregateMonthlyTransactionsByUser.insert(ctx, doc!)
     return id;
   }
 })
@@ -44,6 +55,7 @@ export const deleteTransaction = mutation({
   handler: async (ctx, {id}) => {
     const doc = await ctx.db.get(id)
     await aggregateMonthlyBalanceByUser.deleteIfExists(ctx, doc!)
+    await aggregateMonthlyTransactionsByUser.deleteIfExists(ctx, doc!)
     await ctx.db.delete("transactions", id);
     return id;
   }

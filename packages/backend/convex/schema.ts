@@ -21,3 +21,12 @@ export const aggregateMonthlyBalanceByUser = new TableAggregate<{
   sortKey: (doc) => doc.date,
   sumValue: (doc) => doc.amount,
 })
+
+export const aggregateMonthlyTransactionsByUser = new TableAggregate<{
+  Key: string;
+  DataModel: DataModel;
+  TableName: "transactions";
+}>(components.aggregateMonthlyTransactionsByUser, {
+  sortKey: (doc) => doc.date,
+  sumValue: (doc) => doc.amount,
+})
