@@ -13,7 +13,7 @@
 {:else if getMonthlyBalance.error}
 	<p>Error: {getMonthlyBalance.error.toString()}</p>
 {:else}
-	<div class="flex flex-col border-y border-slate-400 px-4 py-8">
+	<div class="flex flex-col border-y border-light-alt px-4 py-8">
 		<h2 class="text-5xl font-semibold">{getMonthlyBalance.data}</h2>
 		<span class="text-xs">Current Balance</span>
 	</div>

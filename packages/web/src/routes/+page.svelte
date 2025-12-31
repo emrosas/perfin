@@ -30,16 +30,12 @@
 		<ul class="mt-2">
 			{#each listTransactions.data as transaction (transaction._id)}
 				<li
-					class="group relative grid grid-cols-[auto_1fr_auto] items-center gap-4 border-b border-slate-300 px-4 py-4"
+					class="group relative grid grid-cols-[auto_1fr_auto] items-center gap-4 border-b border-light-alt px-4 py-4"
 				>
-					<div
-						class="flex size-12 flex-col items-center justify-center rounded-sm bg-slate-800 text-2xl text-white"
-					>
-						{transaction.category === 'income' ? '+' : '-'}
-					</div>
+					<div class="flex size-12 flex-col items-center justify-center rounded-sm bg-dark"></div>
 					<div class="flex flex-col justify-center">
-						<h4 class="font-medium">{transaction.description}</h4>
-						<span class="text-xs"
+						<h4 class="font-medium capitalize">{transaction.description}</h4>
+						<span class="text-xs text-dark-alt capitalize"
 							>{new Date(transaction.date).toLocaleDateString('es-MX', {
 								month: 'short',
 								day: 'numeric'

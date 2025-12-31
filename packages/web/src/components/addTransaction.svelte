@@ -26,7 +26,7 @@
 			if (amount === 0) {
 				throw new Error('Amount must be greater than zero');
 			}
-			const id = await convexClient.mutation(api.transactions.createTransaction, {
+			await convexClient.mutation(api.transactions.createTransaction, {
 				transaction: {
 					amount: Math.abs(amount),
 					category,
@@ -105,6 +105,6 @@
 <button
 	aria-label="Add Transaction"
 	onclick={() => dialog.showModal()}
-	class="fixed right-4 bottom-4 grid size-12 cursor-pointer place-items-center rounded-full bg-dark-alt text-light transition hover:bg-brand"
+	class="fixed right-4 bottom-4 z-50 grid size-12 cursor-pointer place-items-center rounded-full bg-dark-alt text-light transition hover:bg-brand"
 	><AddIcon class="size-6 transition" /></button
 >
