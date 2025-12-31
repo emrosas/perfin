@@ -6,6 +6,10 @@
 
 	const client = useConvexClient();
 	const listTransactions = useQuery(api.transactions.getTransactions);
+	const getMonthlyBalance = useQuery(api.transactions.getMonthlyBalance, {
+		monthStart: new Date('2025-12-01').toISOString().split('T')[0],
+		monthEnd: new Date('2025-12-31').toISOString().split('T')[0]
+	});
 
 	async function handleDelete(transactionId: Id<'transactions'>) {
 		await client.mutation(api.transactions.deleteTransaction, { id: transactionId });
@@ -15,8 +19,15 @@
 <div class="p-4">
 	<h1 class="mb-4 text-2xl font-semibold">Perfin</h1>
 	<AddTransaction />
+	{#if getMonthlyBalance.isLoading}
+		<p>Getting Balance...</p>
+	{:else if getMonthlyBalance.error}
+		<p>Error: {getMonthlyBalance.error.toString()}</p>
+	{:else}
+		<p>Monthly Balance: {getMonthlyBalance.data}</p>
+	{/if}
 	{#if listTransactions.isLoading}
-		<p>Loading...</p>
+		<p>Getting Transactions...</p>
 	{:else if listTransactions.error}
 		<p>Error: {listTransactions.error.toString()}</p>
 	{:else}
@@ -24,12 +35,12 @@
 			{#each listTransactions.data as transaction (transaction._id)}
 				<li class="flex items-center">
 					{#if transaction.category === 'income'}
-						<div class="text-lg font-semibold text-green-600">
+						<div class="text-lg font-semibold text-amber-500">
 							<span>+ {transaction.amount}</span>
 						</div>
 					{:else}
-						<div class="text-lg font-semibold text-red-600">
-							<span>- {transaction.amount}</span>
+						<div class="text-lg font-semibold text-red-400">
+							<span>- {Math.abs(transaction.amount)}</span>
 						</div>
 					{/if}
 					<span class="ml-4">{new Date(transaction.date).toLocaleDateString()}</span>

@@ -1,15 +1,3 @@
-# perfin
+# Perfin
 
-To install dependencies:
-
-```bash
-bun install
-```
-
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.3.2. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+A clutter-free application to take back control of your personal finances. Create, edit, and delete transactions. View your balance and categorize your expenses.

@@ -17,12 +17,12 @@
 	async function handleSubmit(event: Event) {
 		event.preventDefault();
 		try {
-			if (amount <= 0) {
+			if (amount === 0) {
 				throw new Error('Amount must be greater than zero');
 			}
 			const id = await convexClient.mutation(api.transactions.createTransaction, {
 				transaction: {
-					amount,
+					amount: Math.abs(amount),
 					category,
 					date
 				}
@@ -69,7 +69,7 @@
 		</label>
 		<button
 			type="submit"
-			class="col-span-3 cursor-pointer rounded-sm bg-blue-200 p-2 text-blue-900 transition hover:bg-blue-300"
+			class="col-span-3 cursor-pointer rounded-sm bg-purple-200 p-2 text-purple-900 transition hover:bg-purple-300"
 			>Create Transaction</button
 		>
 	</form>
