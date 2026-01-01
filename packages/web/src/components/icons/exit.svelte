@@ -7,5 +7,8 @@
 </script>
 
 <svg class={className} width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
-	><path fill="currentColor" d="M11 21v-8H3v-2h8V3h2v8h8v2h-8v8z" /></svg
+	><path
+		fill="currentColor"
+		d="M3 21v-6h2v4h14V5H5v4H3V3h18v18zm7.5-4l-1.4-1.45L11.65 13H3v-2h8.65L9.1 8.45L10.5 7l5 5z"
+	/></svg
 >

@@ -1,61 +1,106 @@
 <script lang="ts">
-	import { useQuery } from 'convex-svelte';
-	import { api } from '@perfin/backend/convex/_generated/api';
-	// import type { Id } from '@perfin/backend/convex/_generated/dataModel';
+	import { authClient } from '$lib/authClient';
 
-	// const client = useConvexClient();
-	const monthlyTransactions = useQuery(api.transactions.listMonthlyTransactions, {
-		monthStart: '2025-12-01',
-		monthEnd: '2025-12-31'
-	});
+	let { data } = $props();
 
-	const fmt = new Intl.DateTimeFormat('es-MX', {
-		month: 'short',
-		day: 'numeric',
-		timeZone: 'UTC'
-	});
+	let showSignIn = $state(true);
+	let name = $state('');
+	let email = $state('');
+	let password = $state('');
+
+	async function handlePasswordSubmit(event: Event) {
+		event.preventDefault();
+
+		try {
+			if (showSignIn) {
+				await authClient.signIn.email(
+					{
+						email,
+						password,
+						callbackURL: '/overview'
+					},
+					{
+						onError: (ctx) => {
+							alert(ctx.error.message);
+						}
+					}
+				);
+			} else {
+				await authClient.signUp.email(
+					{ name, email, password, callbackURL: '/overview' },
+					{
+						onError: (ctx) => {
+							alert(ctx.error.message);
+						}
+					}
+				);
+			}
+		} catch (error) {
+			console.log('Authentication error:', error);
+		}
+	}
+
+	function toggleSignMode() {
+		showSignIn = !showSignIn;
+
+		name = '';
+		email = '';
+		password = '';
+	}
 </script>
 
-<main>
-	{#if monthlyTransactions.isLoading}
-		<p>Getting Transactions...</p>
-	{:else if monthlyTransactions.error}
-		<p>Error: {monthlyTransactions.error.toString()}</p>
-	{:else}
-		<h3 class="mx-4 mt-4 text-lg font-medium">My Transactions</h3>
-		<ul class="mt-2">
-			{#each monthlyTransactions.data as transaction (transaction._id)}
-				<li
-					class="group relative grid grid-cols-[auto_1fr_auto] items-center gap-4 border-light-alt px-4 py-4 not-last:border-b"
-				>
-					<div class="flex size-12 flex-col items-center justify-center rounded-sm bg-dark"></div>
-					<div class="flex flex-col justify-center">
-						<h4 class="font-medium capitalize">{transaction.description}</h4>
-						<div>
-							<span class="text-xs text-dark-alt capitalize">
-								{fmt.format(new Date(transaction.date))}
-							</span>
-							<span class="font-light text-light-alt">|</span>
-							<span class="text-xs text-green-800 capitalize">cash</span>
-						</div>
-					</div>
-					<span
-						class={`text-xl font-medium ${transaction.category === 'income' ? 'text-green-600' : 'text-red-400'}`}
-						>{transaction.category === 'income' ? '+' : '-'}{Math.abs(
-							transaction.amount
-						).toLocaleString('en-US', {
-							style: 'currency',
-							currency: 'USD',
-							maximumFractionDigits: 0
-						})}</span
-					>
-					<!-- <button
-						onclick={() => handleDelete(transaction._id)}
-						class="absolute top-0 right-4 ml-auto cursor-pointer rounded-sm bg-red-100 px-1.5 text-xs text-red-800 transition hover:bg-red-200"
-						>Delete</button
-					> -->
-				</li>
-			{/each}
-		</ul>
-	{/if}
-</main>
+<div class="p-4">
+	<h1 class="mb-4 text-2xl font-medium">{showSignIn ? 'Sign In' : 'Sign Up'}</h1>
+	<form onsubmit={handlePasswordSubmit} class="flex flex-col gap-4">
+		{#if !showSignIn}
+			<label for="name" class="flex flex-col">
+				Name
+				<input
+					type="text"
+					name="name"
+					id="name"
+					class="rounded-sm border border-light-alt px-2 py-1"
+					bind:value={name}
+					required
+				/>
+			</label>
+		{/if}
+		<label for="email" class="flex flex-col">
+			Email
+			<input
+				type="email"
+				name="email"
+				id="email"
+				class="rounded-sm border border-light-alt px-2 py-1"
+				bind:value={email}
+				required
+			/>
+		</label>
+		<label for="password" class="flex flex-col">
+			Password
+			<input
+				type="password"
+				name="password"
+				id="password"
+				class="rounded-sm border border-light-alt px-2 py-1"
+				bind:value={password}
+				required
+			/>
+		</label>
+		<button
+			type="submit"
+			class="mt-2 w-full cursor-pointer rounded-sm bg-purple-200 p-2 text-purple-900 transition hover:bg-purple-300"
+		>
+			{showSignIn ? 'Sign In' : 'Sign Up'}
+		</button>
+	</form>
+	<div class="mt-4 text-center">
+		<span>{showSignIn ? "Don't have an account?" : 'Already have an account?'}</span>
+		<button
+			onclick={toggleSignMode}
+			class="ml-2 inline cursor-pointer text-dark-alt transition-colors hover:text-brand"
+		>
+			{showSignIn ? 'Sign Up' : 'Sign In'}
+		</button>
+	</div>
+</div>

@@ -1,15 +1,33 @@
 <script lang="ts">
 	import OverviewIcon from './icons/overview.svelte';
+	import ExitIcon from './icons/exit.svelte';
 	import AddTransaction from './addTransaction.svelte';
+	import { authClient } from '$lib/authClient';
+	import { goto } from '$app/navigation';
+
+	async function signOut() {
+		const result = await authClient.signOut();
+		if (result.error) {
+			console.error('Sign out failed:', result.error);
+		} else {
+			goto('/');
+		}
+	}
 </script>
 
 <div class="flex items-center justify-between gap-4 border-t border-light-alt p-4">
-	<menu class="flex">
+	<menu class="flex grow gap-3">
 		<li>
-			<a href="/" class="flex flex-col items-center text-xs text-dark/50">
+			<a href="/overview" class="flex flex-col items-center text-[10px] text-dark/50">
 				<OverviewIcon class="size-8 text-dark" />
-				Home
+				Overview
 			</a>
+		</li>
+		<li>
+			<button onclick={signOut} class="flex flex-col items-center text-[10px] text-dark/50">
+				<ExitIcon class="size-8 text-dark" />
+				Sign Out
+			</button>
 		</li>
 	</menu>
 	<AddTransaction />

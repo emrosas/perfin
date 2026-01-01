@@ -14,9 +14,12 @@
 		"lint": "prettier --check . && eslint ."
 	},
 	"dependencies": {
-		"convex-svelte": "latest",
+		"@convex-dev/better-auth": "^0.10.9",
+		"@mmailaender/convex-better-auth-svelte": "^0.5.0",
 		"@perfin/backend": "workspace:*",
-		"@perfin/shared": "workspace:*"
+		"@perfin/shared": "workspace:*",
+		"better-auth": "1.4.9",
+		"convex-svelte": "latest"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.4.0",
