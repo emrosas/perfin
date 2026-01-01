@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { authClient } from '$lib/authClient';
+	import { goto } from '$app/navigation';
 
 	let { data } = $props();
 
@@ -7,9 +8,11 @@
 	let name = $state('');
 	let email = $state('');
 	let password = $state('');
+	let status = $state<'idle' | 'loading' | 'success' | 'error'>('idle');
 
 	async function handlePasswordSubmit(event: Event) {
 		event.preventDefault();
+		status = 'loading';
 
 		try {
 			if (showSignIn) {
@@ -22,6 +25,7 @@
 					{
 						onError: (ctx) => {
 							alert(ctx.error.message);
+							status = 'error';
 						}
 					}
 				);
@@ -29,14 +33,19 @@
 				await authClient.signUp.email(
 					{ name, email, password, callbackURL: '/overview' },
 					{
+						onSuccess: () => {
+							goto('/overview');
+						},
 						onError: (ctx) => {
 							alert(ctx.error.message);
+							status = 'error';
 						}
 					}
 				);
 			}
 		} catch (error) {
 			console.log('Authentication error:', error);
+			status = 'error';
 		}
 	}
 
@@ -59,8 +68,9 @@
 					type="text"
 					name="name"
 					id="name"
-					class="rounded-sm border border-light-alt px-2 py-1"
+					class="rounded-sm border border-light-alt px-2 py-1 disabled:cursor-not-allowed disabled:opacity-80"
 					bind:value={name}
+					disabled={status === 'loading'}
 					required
 				/>
 			</label>
@@ -71,8 +81,9 @@
 				type="email"
 				name="email"
 				id="email"
-				class="rounded-sm border border-light-alt px-2 py-1"
+				class="rounded-sm border border-light-alt px-2 py-1 disabled:cursor-not-allowed disabled:opacity-80"
 				bind:value={email}
+				disabled={status === 'loading'}
 				required
 			/>
 		</label>
@@ -82,16 +93,18 @@
 				type="password"
 				name="password"
 				id="password"
-				class="rounded-sm border border-light-alt px-2 py-1"
+				class="rounded-sm border border-light-alt px-2 py-1 disabled:cursor-not-allowed disabled:opacity-80"
 				bind:value={password}
+				disabled={status === 'loading'}
 				required
 			/>
 		</label>
 		<button
 			type="submit"
-			class="mt-2 w-full cursor-pointer rounded-sm bg-purple-200 p-2 text-purple-900 transition hover:bg-purple-300"
+			class="mt-2 w-full cursor-pointer rounded-sm bg-purple-200 p-2 text-purple-900 transition hover:bg-purple-300 disabled:cursor-not-allowed disabled:opacity-80"
+			disabled={status === 'loading'}
 		>
-			{showSignIn ? 'Sign In' : 'Sign Up'}
+			{status === 'loading' ? 'Loading...' : showSignIn ? 'Sign Up' : 'Sign In'}
 		</button>
 	</form>
 	<div class="mt-4 text-center">
