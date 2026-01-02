@@ -12,6 +12,9 @@
 	setupConvex(PUBLIC_CONVEX_URL);
 	createSvelteAuthClient({
 		authClient,
+		options: {
+			expectAuth: true
+		},
 		getServerState: () => data.authState
 	});
 </script>

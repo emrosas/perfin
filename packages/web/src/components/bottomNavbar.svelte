@@ -16,16 +16,16 @@
 </script>
 
 <div class="flex items-center justify-between gap-4 border-t border-light-alt p-4">
-	<menu class="flex grow gap-3">
+	<menu class="flex grow gap-4">
 		<li>
-			<a href="/overview" class="flex flex-col items-center text-[10px] text-dark/50">
-				<OverviewIcon class="size-8 text-dark" />
+			<a href="/overview" class="flex flex-col items-center text-[8px] text-dark/50">
+				<OverviewIcon class="size-6 text-dark" />
 				Overview
 			</a>
 		</li>
 		<li>
-			<button onclick={signOut} class="flex flex-col items-center text-[10px] text-dark/50">
-				<ExitIcon class="size-8 text-dark" />
+			<button onclick={signOut} class="flex flex-col items-center text-[8px] text-dark/50">
+				<ExitIcon class="size-6 text-dark" />
 				Sign Out
 			</button>
 		</li>

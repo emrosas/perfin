@@ -27,12 +27,10 @@
 				throw new Error('Amount must be greater than zero');
 			}
 			await convexClient.mutation(api.transactions.createTransaction, {
-				transaction: {
-					amount: Math.abs(amount as number),
-					category,
-					description,
-					date
-				}
+				amount: Math.abs(amount as number),
+				category,
+				description,
+				date
 			});
 			dialog.close();
 			resetForm();
