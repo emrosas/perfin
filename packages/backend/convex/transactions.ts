@@ -28,11 +28,14 @@ export const listMonthlyTransactions = query({
 export const getMonthlyBalance = query({
   args: { monthStart: v.string(), monthEnd: v.string() },
   handler: async (ctx, { monthStart, monthEnd }) => {
+    const user = await authComponent.getAuthUser(ctx);
+
     return await aggregateMonthlyBalanceByUser.sum(ctx, {
       bounds: {
         lower: {key: monthStart, inclusive: true},
         upper: {key: monthEnd, inclusive: true}
-      }
+      },
+      namespace: user._id
     })
   }
 })

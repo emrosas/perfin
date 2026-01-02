@@ -15,12 +15,14 @@ export default defineSchema({
 })
 
 export const aggregateMonthlyBalanceByUser = new TableAggregate<{
+  Namespace: string;
   Key: string;
   DataModel: DataModel;
   TableName: "transactions";
 }>(components.aggregateMonthlyBalanceByUser, {
   sortKey: (doc) => doc.date,
   sumValue: (doc) => doc.amount,
+  namespace: (doc) => doc.userId
 })
 
 export const aggregateMonthlyTransactionsByUser = new TableAggregate<{
