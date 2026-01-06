@@ -3,14 +3,13 @@
 	import ExitIcon from './icons/exit.svelte';
 	import AddTransaction from './addTransaction.svelte';
 	import { authClient } from '$lib/authClient';
-	import { goto } from '$app/navigation';
 
 	async function signOut() {
 		const result = await authClient.signOut();
 		if (result.error) {
 			console.error('Sign out failed:', result.error);
 		} else {
-			goto('/');
+			window.location.href = '/';
 		}
 	}
 </script>
@@ -24,7 +23,10 @@
 			</a>
 		</li>
 		<li>
-			<button onclick={signOut} class="flex flex-col items-center text-[8px] text-dark/50">
+			<button
+				onclick={signOut}
+				class="flex cursor-pointer flex-col items-center text-[8px] text-dark/50"
+			>
 				<ExitIcon class="size-6 text-dark" />
 				Sign Out
 			</button>

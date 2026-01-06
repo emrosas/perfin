@@ -11,3 +11,11 @@ export function requireLogin() {
 
 	return locals.token;
 }
+
+export function requireUnauthenticated() {
+	const { locals } = getRequestEvent();
+
+	if (locals.token) {
+		throw redirect(307, '/overview');
+	}
+}

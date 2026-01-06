@@ -104,7 +104,7 @@
 			class="mt-2 w-full cursor-pointer rounded-sm bg-purple-200 p-2 text-purple-900 transition hover:bg-purple-300 disabled:cursor-not-allowed disabled:opacity-80"
 			disabled={status === 'loading'}
 		>
-			{status === 'loading' ? 'Loading...' : showSignIn ? 'Sign Up' : 'Sign In'}
+			{status === 'loading' ? 'Loading...' : showSignIn ? 'Sign In' : 'Sign Up'}
 		</button>
 	</form>
 	<div class="mt-4 text-center">

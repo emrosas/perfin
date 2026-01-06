@@ -2,7 +2,7 @@ import schema from "./schema";
 import {  aggregateMonthlyBalanceByUser, aggregateMonthlyTransactionsByUser } from "./schema";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { authComponent, createAuth } from "./auth";
+import { authComponent } from "./auth";
 
 export const listMonthlyTransactions = query({
   args: {
@@ -12,12 +12,14 @@ export const listMonthlyTransactions = query({
   handler: async (ctx, {monthStart, monthEnd}) => {
     const user = await authComponent.getAuthUser(ctx);
 
+
     const page = await aggregateMonthlyTransactionsByUser.paginate(ctx, {
       bounds: {
         lower: {key: monthStart, inclusive: true},
         upper: {key: monthEnd, inclusive: true}
       },
       namespace: user._id,
+      order: "desc",
       pageSize: 100
     })
     const transactions = await Promise.all(page.page.map((doc) => ctx.db.get(doc.id)))
@@ -29,6 +31,10 @@ export const getMonthlyBalance = query({
   args: { monthStart: v.string(), monthEnd: v.string() },
   handler: async (ctx, { monthStart, monthEnd }) => {
     const user = await authComponent.getAuthUser(ctx);
+
+    if (!user) {
+      return null;
+    }
 
     return await aggregateMonthlyBalanceByUser.sum(ctx, {
       bounds: {
