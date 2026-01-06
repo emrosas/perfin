@@ -2,6 +2,11 @@
 	import { authClient } from '$lib/authClient';
 	import { goto } from '$app/navigation';
 
+	import logo from '$lib/assets/logo.png';
+
+	import { Input } from '$lib/components/ui/input/index.js';
+	import { Button } from '$lib/components/ui/button/index.js';
+
 	let { data } = $props();
 
 	let showSignIn = $state(true);
@@ -9,6 +14,7 @@
 	let email = $state('');
 	let password = $state('');
 	let status = $state<'idle' | 'loading' | 'success' | 'error'>('idle');
+	let error = $state('');
 
 	async function handlePasswordSubmit(event: Event) {
 		event.preventDefault();
@@ -24,7 +30,7 @@
 					},
 					{
 						onError: (ctx) => {
-							alert(ctx.error.message);
+							error = ctx.error.message;
 							status = 'error';
 						}
 					}
@@ -34,18 +40,19 @@
 					{ name, email, password, callbackURL: '/overview' },
 					{
 						onSuccess: () => {
-							goto('/overview');
+							window.location.href = '/overview';
 						},
 						onError: (ctx) => {
-							alert(ctx.error.message);
+							error = ctx.error.message;
 							status = 'error';
 						}
 					}
 				);
 			}
-		} catch (error) {
-			console.log('Authentication error:', error);
+		} catch (err) {
+			console.log('Authentication error:', err);
 			status = 'error';
+			error = 'An unexpected error occurred';
 		}
 	}
 
@@ -58,62 +65,64 @@
 	}
 </script>
 
-<div class="p-4">
-	<h1 class="mb-4 text-2xl font-medium">{showSignIn ? 'Sign In' : 'Sign Up'}</h1>
-	<form onsubmit={handlePasswordSubmit} class="flex flex-col gap-4">
-		{#if !showSignIn}
-			<label for="name" class="flex flex-col">
-				Name
-				<input
-					type="text"
-					name="name"
-					id="name"
-					class="rounded-sm border border-light-alt px-2 py-1 disabled:cursor-not-allowed disabled:opacity-80"
-					bind:value={name}
+<div class="p-6 pt-24">
+	<div class="mb-12 flex flex-col items-center">
+		<img src={logo} alt="Perfin Logo" class="h-auto w-24" />
+		<h1 class="mt-3 mb-2 text-6xl font-bold">Perfin</h1>
+		<p class="text-xs">Manage your personal finances without all the complexity.</p>
+	</div>
+	<form onsubmit={handlePasswordSubmit} class="flex flex-col gap-6">
+		<div class="flex flex-col gap-5">
+			{#if !showSignIn}
+				<label for="name" class="flex flex-col gap-1">
+					Name
+					<Input
+						class="bg-input"
+						type="text"
+						name="name"
+						bind:value={name}
+						disabled={status === 'loading'}
+						required
+					/>
+				</label>
+			{/if}
+			<label for="email" class="flex flex-col gap-1">
+				Email
+				<Input
+					class="bg-input"
+					type="email"
+					name="email"
+					bind:value={email}
 					disabled={status === 'loading'}
 					required
 				/>
 			</label>
-		{/if}
-		<label for="email" class="flex flex-col">
-			Email
-			<input
-				type="email"
-				name="email"
-				id="email"
-				class="rounded-sm border border-light-alt px-2 py-1 disabled:cursor-not-allowed disabled:opacity-80"
-				bind:value={email}
-				disabled={status === 'loading'}
-				required
-			/>
-		</label>
-		<label for="password" class="flex flex-col">
-			Password
-			<input
-				type="password"
-				name="password"
-				id="password"
-				class="rounded-sm border border-light-alt px-2 py-1 disabled:cursor-not-allowed disabled:opacity-80"
-				bind:value={password}
-				disabled={status === 'loading'}
-				required
-			/>
-		</label>
-		<button
-			type="submit"
-			class="mt-2 w-full cursor-pointer rounded-sm bg-purple-200 p-2 text-purple-900 transition hover:bg-purple-300 disabled:cursor-not-allowed disabled:opacity-80"
-			disabled={status === 'loading'}
+			<label for="password" class="flex flex-col gap-1">
+				Password
+				<Input
+					class="bg-input"
+					type="password"
+					name="password"
+					bind:value={password}
+					disabled={status === 'loading'}
+					required
+				/>
+			</label>
+		</div>
+		<Button type="submit" disabled={status === 'loading'}
+			>{status === 'loading' ? 'Loading...' : showSignIn ? 'Sign In' : 'Sign Up'}</Button
 		>
-			{status === 'loading' ? 'Loading...' : showSignIn ? 'Sign In' : 'Sign Up'}
-		</button>
 	</form>
 	<div class="mt-4 text-center">
 		<span>{showSignIn ? "Don't have an account?" : 'Already have an account?'}</span>
 		<button
 			onclick={toggleSignMode}
-			class="ml-2 inline cursor-pointer text-dark-alt transition-colors hover:text-brand"
+			class="ml-2 inline cursor-pointer text-secondary transition-colors hover:text-primary"
 		>
 			{showSignIn ? 'Sign Up' : 'Sign In'}
 		</button>
 	</div>
+	{#if error}
+		<p class="mt-6 text-center text-red-500">{error}</p>
+	{/if}
 </div>

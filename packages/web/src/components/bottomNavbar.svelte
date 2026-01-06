@@ -14,20 +14,20 @@
 	}
 </script>
 
-<div class="flex items-center justify-between gap-4 border-t border-light-alt p-4">
+<div class="border-light-alt flex items-center justify-between gap-4 border-t bg-card p-4">
 	<menu class="flex grow gap-4">
 		<li>
-			<a href="/overview" class="flex flex-col items-center text-[8px] text-dark/50">
-				<OverviewIcon class="size-6 text-dark" />
+			<a href="/overview" class="text-dark/50 flex flex-col items-center text-[8px]">
+				<OverviewIcon class="text-dark size-6" />
 				Overview
 			</a>
 		</li>
 		<li>
 			<button
 				onclick={signOut}
-				class="flex cursor-pointer flex-col items-center text-[8px] text-dark/50"
+				class="text-dark/50 flex cursor-pointer flex-col items-center text-[8px]"
 			>
-				<ExitIcon class="size-6 text-dark" />
+				<ExitIcon class="text-dark size-6" />
 				Sign Out
 			</button>
 		</li>

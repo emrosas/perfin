@@ -23,7 +23,7 @@
 
 {#snippet skeletonTransaction()}
 	<li
-		class="grid grid-cols-[auto_1fr_auto] items-center gap-4 rounded-md border border-light-alt p-2"
+		class="border-light-alt grid grid-cols-[auto_1fr_auto] items-center gap-4 rounded-md border p-2"
 	>
 		<div class="skeleton flex size-12 flex-col items-center justify-center rounded-xs"></div>
 		<div class="flex flex-col justify-center gap-2">
@@ -50,16 +50,18 @@
 			{#each monthlyTransactions.data as transaction (transaction?._id)}
 				{#if transaction}
 					<li
-						class="group relative grid grid-cols-[auto_1fr_auto] items-center gap-4 rounded-md border border-light-alt p-2"
+						class="group border-light-alt relative grid grid-cols-[auto_1fr_auto] items-center gap-4 rounded-md border p-2"
 					>
-						<div class="flex size-12 flex-col items-center justify-center rounded-xs bg-dark"></div>
+						<div
+							class="flex size-12 flex-col items-center justify-center rounded-xs bg-muted-foreground"
+						></div>
 						<div class="flex flex-col justify-center">
 							<h4 class="font-medium capitalize">{transaction.description}</h4>
 							<div>
-								<span class="text-xs text-dark-alt capitalize">
+								<span class="text-dark-alt text-xs capitalize">
 									{fmt.format(new Date(transaction.date))}
 								</span>
-								<span class="font-light text-light-alt">|</span>
+								<span class="font-light text-muted-foreground">|</span>
 								<span class="text-xs text-green-800 capitalize">cash</span>
 							</div>
 						</div>
