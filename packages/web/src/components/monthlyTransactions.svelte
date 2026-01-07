@@ -5,9 +5,28 @@
 
 	const client = useConvexClient();
 
-	const monthlyTransactions = useQuery(api.transactions.listMonthlyTransactions, {
-		monthStart: new Date('2025-12-01').toISOString().split('T')[0],
-		monthEnd: new Date('2025-12-31').toISOString().split('T')[0]
+	function getMonthRange(year: number, month: number) {
+		const firstDay = new Date(year, month, 1);
+		const lastDay = new Date(year, month + 1, 0);
+
+		const formatDate = (date: Date) => date.toISOString().split('T')[0];
+
+		return {
+			monthStart: formatDate(firstDay),
+			monthEnd: formatDate(lastDay)
+		};
+	}
+
+	let selectedMonth = $state(new Date());
+	let range = $derived(getMonthRange(selectedMonth.getFullYear(), selectedMonth.getMonth()));
+	// let monthStart = $derived(startingRange.monthStart);
+	// let monthEnd = $state(startingRange.monthEnd);
+
+	const monthlyTransactions = useQuery(api.transactions.listMonthlyTransactions, () => {
+		return {
+			monthStart: range.monthStart,
+			monthEnd: range.monthEnd
+		};
 	});
 
 	async function handleDeleteTransaction(transactionId: Id<'transactions'>) {
@@ -19,6 +38,19 @@
 		day: 'numeric',
 		timeZone: 'UTC'
 	});
+
+	const monthFmt = new Intl.DateTimeFormat('es-MX', {
+		month: 'short',
+		timeZone: 'UTC'
+	});
+
+	const handleNextMonth = async () => {
+		selectedMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1);
+	};
+
+	const handlePreviousMonth = async () => {
+		selectedMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() - 1);
+	};
 </script>
 
 {#snippet skeletonTransaction()}
@@ -35,8 +67,15 @@
 {/snippet}
 
 <div class="p-4">
+	<div class="flex items-center justify-between gap-4">
+		<h3 class="text-lg font-medium">My Transactions</h3>
+		<div>
+			<button onclick={handlePreviousMonth} class="inline-flex items-center">←</button>
+			<h3 class="mx-2 inline text-lg font-medium capitalize">{monthFmt.format(selectedMonth)}</h3>
+			<button onclick={handleNextMonth} class="inline-flex items-center">→</button>
+		</div>
+	</div>
 	{#if monthlyTransactions.isLoading}
-		<h3 class="text-lg font-medium opacity-50">Getting Transactions...</h3>
 		<ul class="mt-2 flex flex-col gap-2">
 			{@render skeletonTransaction()}
 			{@render skeletonTransaction()}
@@ -45,7 +84,6 @@
 			{@render skeletonTransaction()}
 		</ul>
 	{:else}
-		<h3 class="text-lg font-medium">My Transactions</h3>
 		<ul class="mt-2 flex flex-col gap-2">
 			{#each monthlyTransactions.data as transaction (transaction?._id)}
 				{#if transaction}

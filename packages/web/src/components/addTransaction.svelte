@@ -46,6 +46,7 @@
 				return;
 			}
 			if (date === undefined) {
+				status = 'error';
 				console.error('Date is undefined');
 				return;
 			}
