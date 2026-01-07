@@ -8,7 +8,7 @@
 	});
 </script>
 
-<div class="flex flex-col gap-1 border-y border-light-alt px-4 py-8">
+<div class="border-light-alt flex flex-col gap-1 border-y px-4 pt-24 pb-12">
 	{#if getMonthlyBalance.isLoading}
 		<h2 class="skeleton bg-clip-text text-5xl font-semibold text-transparent">$0</h2>
 		<span class="text-xs opacity-50">Loading Balance...</span>
