@@ -1,8 +1,13 @@
 <script lang="ts">
 	import AddIcon from './icons/add.svelte';
+	import CalendarIcon from '@lucide/svelte/icons/calendar';
 	import { Button, buttonVariants } from '$lib/components/ui/button/index';
 	import * as Dialog from '$lib/components/ui/dialog/index';
 	import { Input } from '$lib/components/ui/input/index';
+	import { Calendar } from '$lib/components/ui/calendar/index';
+	import * as Popover from '$lib/components/ui/popover/index';
+	import { cn } from '$lib/utils';
+	import { type DateValue, DateFormatter, getLocalTimeZone } from '@internationalized/date';
 
 	import { useConvexClient } from 'convex-svelte';
 	import { api } from '@perfin/backend/convex/_generated/api';
@@ -12,14 +17,20 @@
 	let amount = $state(0);
 	let category = $state<'income' | 'expense'>('income');
 	let description = $state('');
-	let date = $state(new Date().toISOString().split('T')[0]);
+	let date = $state<DateValue>();
+
+	const df = new DateFormatter('en-EN', {
+		year: 'numeric',
+		month: '2-digit',
+		day: '2-digit'
+	});
 
 	function resetForm() {
 		open = false;
 		amount = 0;
 		category = 'income';
 		description = '';
-		date = new Date().toISOString().split('T')[0];
+		date = undefined;
 	}
 
 	const convexClient = useConvexClient();
@@ -27,17 +38,22 @@
 	async function handleSubmit(event: Event) {
 		event.preventDefault();
 		status = 'loading';
+
 		try {
 			if (amount === 0) {
 				status = 'error';
-				alert('Amount must be greater than zero');
-				throw new Error('Amount must be greater than zero');
+				console.error('Amount must be greater than zero');
+				return;
+			}
+			if (date === undefined) {
+				console.error('Date is undefined');
+				return;
 			}
 			await convexClient.mutation(api.transactions.createTransaction, {
 				amount: Math.abs(amount as number),
 				category,
 				description,
-				date
+				date: date?.toDate(getLocalTimeZone()).toISOString().split('T')[0]
 			});
 			resetForm();
 			status = 'idle';
@@ -119,8 +135,25 @@
 				</label>
 				<label for="date" class="flex flex-col gap-1">
 					Date
-					<Input type="date" id="date" bind:value={date} required disabled={status === 'loading'} />
+					<!-- <Input type="date" id="date" bind:value={date} required disabled={status === 'loading'} /> -->
 				</label>
+				<Popover.Root>
+					<Popover.Trigger>
+						{#snippet child({ props })}
+							<Button
+								variant="outline"
+								class={cn('justify-start text-start font-normal', !date && 'text-muted-foreground')}
+								{...props}
+							>
+								<CalendarIcon class="me-2 size-4" />
+								{date ? df.format(date.toDate(getLocalTimeZone())) : 'Select a date'}
+							</Button>
+						{/snippet}
+					</Popover.Trigger>
+					<Popover.Content class="w-auto p-0">
+						<Calendar bind:value={date} type="single" initialFocus captionLayout="dropdown" />
+					</Popover.Content>
+				</Popover.Root>
 			</div>
 			<Dialog.Footer>
 				<Dialog.Close class={buttonVariants({ variant: 'outline' })}>Cancel</Dialog.Close>
