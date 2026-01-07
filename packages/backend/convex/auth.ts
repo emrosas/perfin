@@ -2,7 +2,8 @@ import { createClient, type GenericCtx } from "@convex-dev/better-auth";
 import { convex } from "@convex-dev/better-auth/plugins";
 import { components } from "./_generated/api";
 import { type DataModel } from "./_generated/dataModel";
-import { query } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
+import { v } from "convex/values";
 import { betterAuth, type BetterAuthOptions } from "better-auth/minimal";
 import authConfig from "./auth.config";
 
@@ -36,3 +37,18 @@ export const getCurrentUser = query({
     return authComponent.getAuthUser(ctx);
   },
 });
+
+export const createCashAccount = mutation({
+  args: {
+    userId: v.string(),
+  },
+  handler: async (ctx, {userId}) => {
+    await ctx.db.insert("accounts", {
+      name: "Cash",
+      userId,
+      balance: 0,
+    });
+
+    return { success: true };
+  },
+})

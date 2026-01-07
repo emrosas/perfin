@@ -10,20 +10,27 @@ export default defineSchema({
     category: v.union(v.literal("income"), v.literal("expense")),
     description: v.string(),
     date: v.string(),
+    accountId: v.id("accounts"),
     userId: v.string(),
-  })
+  }),
+  accounts: defineTable({
+    name: v.string(),
+    balance: v.number(),
+    userId: v.string(),
+  }).index("by_userId", ["userId"]),
 })
 
-export const aggregateMonthlyBalanceByUser = new TableAggregate<{
-  Namespace: string;
-  Key: string;
-  DataModel: DataModel;
-  TableName: "transactions";
-}>(components.aggregateMonthlyBalanceByUser, {
-  sortKey: (doc) => doc.date,
-  sumValue: (doc) => doc.amount,
-  namespace: (doc) => doc.userId
-})
+
+// export const aggregateMonthlyBalanceByUser = new TableAggregate<{
+//   Namespace: string;
+//   Key: string;
+//   DataModel: DataModel;
+//   TableName: "transactions";
+// }>(components.aggregateMonthlyBalanceByUser, {
+//   sortKey: (doc) => doc.date,
+//   sumValue: (doc) => doc.amount,
+//   namespace: (doc) => doc.userId
+// })
 
 export const aggregateMonthlyTransactionsByUser = new TableAggregate<{
   Namespace: string;

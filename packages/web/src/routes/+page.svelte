@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { authClient } from '$lib/authClient';
-	import { goto } from '$app/navigation';
 
 	import logo from '$lib/assets/logo.png';
 
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import { useConvexClient } from 'convex-svelte';
+	import { api } from '@perfin/backend/convex/_generated/api.js';
 
 	let { data } = $props();
 
@@ -15,6 +16,8 @@
 	let password = $state('');
 	let status = $state<'idle' | 'loading' | 'success' | 'error'>('idle');
 	let error = $state('');
+
+	const client = useConvexClient();
 
 	async function handlePasswordSubmit(event: Event) {
 		event.preventDefault();
@@ -39,8 +42,10 @@
 				await authClient.signUp.email(
 					{ name, email, password, callbackURL: '/overview' },
 					{
-						onSuccess: () => {
-							window.location.href = '/overview';
+						onSuccess: (ctx) => {
+							client.mutation(api.auth.createCashAccount, { userId: ctx.data.user.id }).then(() => {
+								window.location.href = '/overview';
+							});
 						},
 						onError: (ctx) => {
 							error = ctx.error.message;
