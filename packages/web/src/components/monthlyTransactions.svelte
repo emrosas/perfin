@@ -66,17 +66,21 @@
 	</li>
 {/snippet}
 
-<div class="p-4">
+<div class="p-4 pt-6">
 	<div class="flex items-center justify-between gap-4">
 		<h3 class="text-lg font-medium">My Transactions</h3>
 		<div>
 			<button onclick={handlePreviousMonth} class="inline-flex items-center">←</button>
-			<h3 class="mx-2 inline text-lg font-medium capitalize">{monthFmt.format(selectedMonth)}</h3>
+			<h3
+				class="mx-2 inline-block w-16 rounded-full bg-accent px-2 py-1 text-center text-lg leading-none font-medium capitalize"
+			>
+				{monthFmt.format(selectedMonth)}
+			</h3>
 			<button onclick={handleNextMonth} class="inline-flex items-center">→</button>
 		</div>
 	</div>
 	{#if monthlyTransactions.isLoading}
-		<ul class="mt-2 flex flex-col gap-2">
+		<ul class="mt-4 flex flex-col gap-2">
 			{@render skeletonTransaction()}
 			{@render skeletonTransaction()}
 			{@render skeletonTransaction()}
@@ -84,17 +88,17 @@
 			{@render skeletonTransaction()}
 		</ul>
 	{:else}
-		<ul class="mt-2 flex flex-col gap-2">
+		<ul class="mt-4 flex flex-col gap-2">
 			{#each monthlyTransactions.data as transaction (transaction?._id)}
 				{#if transaction}
 					<li
-						class="group border-light-alt relative grid grid-cols-[auto_1fr_auto] items-center gap-4 rounded-md border p-2"
+						class="group border-light-alt relative grid grid-cols-[auto_1fr_auto] items-center gap-4 rounded-md border bg-card p-2"
 					>
 						<div
 							class="flex size-12 flex-col items-center justify-center rounded-xs bg-muted-foreground"
 						></div>
 						<div class="flex flex-col justify-center">
-							<h4 class="font-medium capitalize">{transaction.description}</h4>
+							<h4 class="line-clamp-1 font-medium capitalize">{transaction.description}</h4>
 							<div>
 								<span class="text-dark-alt text-xs capitalize">
 									{fmt.format(new Date(transaction.date))}

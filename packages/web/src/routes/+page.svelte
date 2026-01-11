@@ -8,12 +8,15 @@
 	import { useConvexClient } from 'convex-svelte';
 	import { api } from '@perfin/backend/convex/_generated/api.js';
 
+	import ShowPassword from '../components/icons/showPassword.svelte';
+
 	let { data } = $props();
 
 	let showSignIn = $state(true);
 	let name = $state('');
 	let email = $state('');
 	let password = $state('');
+	let showPassword = $state(false);
 	let status = $state<'idle' | 'loading' | 'success' | 'error'>('idle');
 	let error = $state('');
 
@@ -104,14 +107,24 @@
 			</label>
 			<label for="password" class="flex flex-col gap-1">
 				Password
-				<Input
-					class="bg-input"
-					type="password"
-					name="password"
-					bind:value={password}
-					disabled={status === 'loading'}
-					required
-				/>
+				<div class="relative">
+					<Input
+						class="bg-input"
+						type={showPassword ? 'text' : 'password'}
+						name="password"
+						bind:value={password}
+						disabled={status === 'loading'}
+						required
+					/>
+					<button
+						type="button"
+						tabindex="-1"
+						class="absolute top-1/2 right-4 -translate-y-1/2"
+						onclick={() => (showPassword = !showPassword)}
+					>
+						<ShowPassword class={`${showPassword ? 'opacity-100' : 'opacity-50'} size-5`} />
+					</button>
+				</div>
 			</label>
 		</div>
 		<Button type="submit" disabled={status === 'loading'}

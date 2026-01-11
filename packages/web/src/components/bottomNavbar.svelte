@@ -1,5 +1,6 @@
 <script lang="ts">
 	import OverviewIcon from './icons/overview.svelte';
+	import AccountIcon from './icons/account.svelte';
 	import ExitIcon from './icons/exit.svelte';
 	import AddTransaction from './addTransaction.svelte';
 	import { authClient } from '$lib/authClient';
@@ -20,6 +21,12 @@
 			<a href="/overview" class="text-dark/50 flex flex-col items-center text-[8px]">
 				<OverviewIcon class="text-dark size-6" />
 				Overview
+			</a>
+		</li>
+		<li>
+			<a href="/accounts" class="text-dark/50 flex flex-col items-center text-[8px]">
+				<AccountIcon class="text-dark size-6" />
+				Accounts
 			</a>
 		</li>
 		<li>

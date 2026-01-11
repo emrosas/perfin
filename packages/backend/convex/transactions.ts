@@ -67,15 +67,16 @@ export const createTransaction = mutation({
     }
 
     const user = await authComponent.getAuthUser(ctx);
+    const normalizedAmount = params.category === "income" ? Math.abs(params.amount) : -Math.abs(params.amount);
 
     const id = await ctx.db.insert("transactions", {
       ...params,
-      amount: params.category === "income" ? Math.abs(params.amount) : -Math.abs(params.amount),
+      amount: normalizedAmount,
       userId: user._id
     })
 
     await ctx.db.patch("accounts", params.accountId, {
-      balance: account.balance + params.amount
+      balance: account.balance + normalizedAmount
     })
 
     const doc = await ctx.db.get(id)
