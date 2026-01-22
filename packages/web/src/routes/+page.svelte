@@ -9,6 +9,7 @@
 	import { api } from '@perfin/backend/convex/_generated/api.js';
 
 	import ShowPassword from '../components/icons/showPassword.svelte';
+	import Spinner from '../components/icons/spinner.svelte';
 
 	let { data } = $props();
 
@@ -127,9 +128,13 @@
 				</div>
 			</label>
 		</div>
-		<Button type="submit" disabled={status === 'loading'}
-			>{status === 'loading' ? 'Loading...' : showSignIn ? 'Sign In' : 'Sign Up'}</Button
-		>
+		<Button type="submit" disabled={status === 'loading'}>
+			{#if status === 'loading'}
+				<Spinner class="size-5 animate-spin" />
+			{:else}
+				{showSignIn ? 'Sign In' : 'Sign Up'}
+			{/if}
+		</Button>
 	</form>
 	<div class="mt-4 text-center">
 		<span>{showSignIn ? "Don't have an account?" : 'Already have an account?'}</span>

@@ -3,6 +3,10 @@
 
 @import 'tw-animate-css';
 
+@custom-variant aria-page (&[aria-current="page"]);
+@custom-variant aria-current (&[aria-current="true"]);
+@custom-variant aria-expanded (&[aria-expanded="true"]);
+@custom-variant data-open (&[data-open="true"]);
 @custom-variant dark (&:is(.dark *));
 
 :root {
