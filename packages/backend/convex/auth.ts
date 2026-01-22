@@ -8,6 +8,8 @@ import { betterAuth, type BetterAuthOptions } from "better-auth/minimal";
 import authConfig from "./auth.config";
 
 const siteUrl = process.env.SITE_URL!;
+const googleClientId = process.env.GOOGLE_CLIENT_ID!;
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET!;
 
 // The component client has methods needed for integrating Convex with Better Auth,
 // as well as helper methods for general use.
@@ -21,6 +23,13 @@ export const createAuth = (ctx: GenericCtx<DataModel>) => {
     emailAndPassword: {
       enabled: true,
       requireEmailVerification: false,
+    },
+    socialProviders: {
+      google: {
+        prompt: 'select_account',
+        clientId: googleClientId,
+        clientSecret: googleClientSecret
+      }
     },
     plugins: [
       // The Convex plugin is required for Convex compatibility

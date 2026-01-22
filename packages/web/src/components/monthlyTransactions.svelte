@@ -2,6 +2,7 @@
 	import { useConvexClient, useQuery } from 'convex-svelte';
 	import { api } from '@perfin/backend/convex/_generated/api';
 	import type { Id } from '@perfin/backend/convex/_generated/dataModel';
+	import { getUserAccounts } from '../context';
 
 	const client = useConvexClient();
 
@@ -19,8 +20,6 @@
 
 	let selectedMonth = $state(new Date());
 	let range = $derived(getMonthRange(selectedMonth.getFullYear(), selectedMonth.getMonth()));
-	// let monthStart = $derived(startingRange.monthStart);
-	// let monthEnd = $state(startingRange.monthEnd);
 
 	const monthlyTransactions = useQuery(api.transactions.listMonthlyTransactions, () => {
 		return {
@@ -28,6 +27,7 @@
 			monthEnd: range.monthEnd
 		};
 	});
+	const currentUserAccounts = getUserAccounts();
 
 	async function handleDeleteTransaction(transactionId: Id<'transactions'>) {
 		await client.mutation(api.transactions.deleteTransaction, { id: transactionId });
@@ -72,7 +72,7 @@
 		<div>
 			<button onclick={handlePreviousMonth} class="inline-flex items-center">←</button>
 			<h3
-				class="mx-2 inline-block w-16 rounded-full bg-accent px-2 py-1 text-center text-lg leading-none font-medium capitalize"
+				class="mx-2 inline-block w-16 rounded-full bg-muted px-2 py-1 text-center text-lg leading-none font-medium capitalize"
 			>
 				{monthFmt.format(selectedMonth)}
 			</h3>
@@ -95,7 +95,7 @@
 						class="group border-light-alt relative grid grid-cols-[auto_1fr_auto] items-center gap-4 rounded-md border bg-card p-2"
 					>
 						<div
-							class="flex size-12 flex-col items-center justify-center rounded-xs bg-muted-foreground"
+							class="flex size-12 flex-col items-center justify-center rounded-xs bg-muted"
 						></div>
 						<div class="flex flex-col justify-center">
 							<h4 class="line-clamp-1 font-medium capitalize">{transaction.description}</h4>
@@ -104,7 +104,13 @@
 									{fmt.format(new Date(transaction.date))}
 								</span>
 								<span class="font-light text-muted-foreground">|</span>
-								<span class="text-xs text-green-800 capitalize">cash</span>
+								{#if currentUserAccounts.data}
+									<span class="text-xs capitalize"
+										>{currentUserAccounts.data.find(
+											(account) => account._id === transaction.accountId
+										)?.name}</span
+									>
+								{/if}
 							</div>
 						</div>
 						<span
@@ -118,7 +124,7 @@
 							})}</span
 						>
 						<button
-							onclick={() => handleDeleteTransaction(transaction._id)}
+							onlclick={() => handleDeleteTransaction(transaction._id)}
 							class="absolute top-0 right-0 ml-auto cursor-pointer rounded-tr-sm bg-red-100 px-1.5 text-[8px] text-red-800 transition hover:bg-red-200"
 							>X</button
 						>

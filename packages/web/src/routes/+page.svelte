@@ -10,6 +10,7 @@
 
 	import ShowPassword from '../components/icons/showPassword.svelte';
 	import Spinner from '../components/icons/spinner.svelte';
+	import Google from '../components/icons/google.svelte';
 
 	let { data } = $props();
 
@@ -148,4 +149,13 @@
 	{#if error}
 		<p class="mt-6 text-center text-red-500">{error}</p>
 	{/if}
+	<div class="mt-6 flex flex-col text-center">
+		<span class="mb-6 inline-block">Or</span>
+		<Button
+			type="button"
+			variant="outline"
+			onclick={async () => await authClient.signIn.social({ provider: 'google' })}
+			disabled={status === 'loading'}><Google class="size-5" /> Continue with Google</Button
+		>
+	</div>
 </div>
