@@ -19,10 +19,10 @@
 	{/if}
 {/snippet}
 
-<div class="border-light-alt flex flex-col gap-1 border-y bg-card px-4 pt-24 pb-6">
+<div class="flex flex-col gap-1 bg-card p-4">
 	{#if currentUserAccounts.isLoading}
-		<h2 class="skeleton bg-clip-text text-5xl font-semibold text-transparent">$0</h2>
-		<span class="mb-2 text-xs opacity-50">Loading Balance...</span>
+		<h2 class="skeleton bg-clip-text text-center text-6xl font-semibold text-transparent">$0</h2>
+		<span class="mb-2 text-center text-xs opacity-50">Loading Balance...</span>
 		<div class="inline-flex flex-1 flex-col gap-1">
 			<div class="skeleton h-1 w-full rounded-full"></div>
 			<span class="text-[10px] opacity-50">Account</span>
@@ -30,14 +30,14 @@
 	{:else if currentUserAccounts.error}
 		<p>Error: {currentUserAccounts.error.toString()}</p>
 	{:else if currentUserAccounts}
-		<h2 class="text-5xl font-semibold">
+		<h2 class="text-center text-6xl font-semibold">
 			{totalBalance?.toLocaleString('en-US', {
 				style: 'currency',
 				currency: 'USD',
 				maximumFractionDigits: 0
 			})}
 		</h2>
-		<span class="mb-2 text-xs">Current Balance</span>
+		<span class="mb-2 text-center text-xs">Current Balance</span>
 		<div class="flex gap-0.5">
 			{#each currentUserAccounts.data as account (account._id)}
 				{@render balanceIndicator(account.balance, account.name)}

@@ -27,6 +27,50 @@ export const listMonthlyTransactions = query({
   },
 });
 
+export const updateAccountBalance = mutation({
+  args: {
+    id: v.id("accounts"),
+    balance: v.number()
+  },
+  handler: async (ctx, {id, balance}) => {
+    const user = await authComponent.getAuthUser(ctx);
+
+    if (!user) {
+      return null;
+    }
+
+    const account = await ctx.db.get(id);
+
+    if (!account) {
+      throw new Error("Account not found");
+    }
+
+    const difference = balance - account.balance;
+
+    if (difference === 0) {
+      return balance;
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    const category = difference > 0 ? "income" : "expense";
+
+    const transactionId = await ctx.db.insert("transactions", {
+      amount: difference,
+      category,
+      description: "Balance adjustment",
+      date: today,
+      accountId: id,
+      userId: user._id
+    });
+
+    const transaction = await ctx.db.get(transactionId);
+    await aggregateMonthlyTransactionsByUser.insert(ctx, transaction!);
+
+    await ctx.db.patch(id, {balance});
+    return balance;
+  }
+});
+
 // export const getMonthlyBalance = query({
 //   args: { monthStart: v.string(), monthEnd: v.string() },
 //   handler: async (ctx, { monthStart, monthEnd }) => {

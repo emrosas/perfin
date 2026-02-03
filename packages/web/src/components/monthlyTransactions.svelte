@@ -124,7 +124,7 @@
 							})}</span
 						>
 						<button
-							onlclick={() => handleDeleteTransaction(transaction._id)}
+							onclick={() => handleDeleteTransaction(transaction._id)}
 							class="absolute top-0 right-0 ml-auto cursor-pointer rounded-tr-sm bg-red-100 px-1.5 text-[8px] text-red-800 transition hover:bg-red-200"
 							>X</button
 						>

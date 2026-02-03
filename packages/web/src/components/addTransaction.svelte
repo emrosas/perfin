@@ -1,5 +1,4 @@
 <script lang="ts">
-	import AddIcon from './icons/add.svelte';
 	import CalendarIcon from '@lucide/svelte/icons/calendar';
 	import { Button, buttonVariants } from '$lib/components/ui/button/index';
 	import * as Select from '$lib/components/ui/select/index';
@@ -83,18 +82,31 @@
 
 <Dialog.Root bind:open>
 	<Dialog.Trigger
+		onclick={() => {
+			resetForm();
+			category = 'income';
+		}}
 		type="button"
-		class="grid size-12 cursor-pointer place-items-center rounded-full bg-secondary text-secondary-foreground transition hover:bg-primary"
-		aria-label="Create Transaction"><AddIcon class="size-6 transition" /></Dialog.Trigger
+		class="flex items-center justify-center gap-1 rounded-sm bg-green-50 px-3 py-1.5 text-center text-base font-medium"
+		aria-label="Create Transaction">Income</Dialog.Trigger
+	>
+	<Dialog.Trigger
+		onclick={() => {
+			resetForm();
+			category = 'expense';
+		}}
+		type="button"
+		class="flex items-center justify-center gap-1 rounded-sm bg-red-50 px-3 py-1.5 text-center text-base font-medium"
+		aria-label="Create Transaction">Expense</Dialog.Trigger
 	>
 	<Dialog.Content class="sm:max-w-2xl">
 		<form onsubmit={handleSubmit}>
 			<Dialog.Header>
-				<Dialog.Title>Create Transaction</Dialog.Title>
+				<Dialog.Title>Create {category === 'income' ? 'Income' : 'Expense'}</Dialog.Title>
 				<Dialog.Description>Enter the details of your transaction.</Dialog.Description>
 			</Dialog.Header>
 			<div class="my-4 grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] items-end gap-2">
-				<div class="grid grid-cols-2 gap-1 rounded-md bg-muted p-1 font-medium">
+				<!-- <div class="grid grid-cols-2 gap-1 rounded-md bg-muted p-1 font-medium">
 					<div>
 						<input
 							type="radio"
@@ -129,7 +141,7 @@
 							Expense
 						</label>
 					</div>
-				</div>
+				</div> -->
 				<label for="amount" class="flex flex-col gap-1">
 					Amount
 					<Input
