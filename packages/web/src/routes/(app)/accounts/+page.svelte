@@ -50,7 +50,7 @@
 			if (!selectedAccount) return;
 			await client.mutation(api.transactions.updateAccountBalance, {
 				id: selectedAccount,
-				balance
+				balance: selectedAccountBalance
 			});
 			status = 'idle';
 			resetForms();

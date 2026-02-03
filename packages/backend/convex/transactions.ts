@@ -1,8 +1,10 @@
 import schema from "./schema";
 import { aggregateMonthlyTransactionsByUser } from "./schema";
-import { mutation, query } from "./_generated/server";
+import { mutation, MutationCtx, query } from "./_generated/server";
+import { Id } from "./_generated/dataModel";
 import { v } from "convex/values";
 import { authComponent } from "./auth";
+import type { User } from "better-auth";
 
 export const listMonthlyTransactions = query({
   args: {
@@ -34,11 +36,6 @@ export const updateAccountBalance = mutation({
   },
   handler: async (ctx, {id, balance}) => {
     const user = await authComponent.getAuthUser(ctx);
-
-    if (!user) {
-      return null;
-    }
-
     const account = await ctx.db.get(id);
 
     if (!account) {
@@ -54,7 +51,7 @@ export const updateAccountBalance = mutation({
     const today = new Date().toISOString().split('T')[0];
     const category = difference > 0 ? "income" : "expense";
 
-    const transactionId = await ctx.db.insert("transactions", {
+    return await createTransaction(ctx, {
       amount: difference,
       category,
       description: "Balance adjustment",
@@ -62,35 +59,48 @@ export const updateAccountBalance = mutation({
       accountId: id,
       userId: user._id
     });
-
-    const transaction = await ctx.db.get(transactionId);
-    await aggregateMonthlyTransactionsByUser.insert(ctx, transaction!);
-
-    await ctx.db.patch(id, {balance});
-    return balance;
   }
 });
 
-// export const getMonthlyBalance = query({
-//   args: { monthStart: v.string(), monthEnd: v.string() },
-//   handler: async (ctx, { monthStart, monthEnd }) => {
-//     const user = await authComponent.getAuthUser(ctx);
+async function createTransaction(
+  ctx: MutationCtx,
+  args: {
+    amount: number,
+    description: string,
+    category: "income" | "expense",
+    date: string,
+    accountId: Id<"accounts">
+    userId: string
+  }
+) {
+    if (args.amount === 0) {
+      throw new Error("Amount must be greater than zero");
+    }
 
-//     if (!user) {
-//       return null;
-//     }
+    const account = await ctx.db.get(args.accountId)
 
-//     return await aggregateMonthlyBalanceByUser.sum(ctx, {
-//       bounds: {
-//         lower: {key: monthStart, inclusive: true},
-//         upper: {key: monthEnd, inclusive: true}
-//       },
-//       namespace: user._id
-//     })
-//   }
-// })
+    if (account === null) {
+      throw new Error("Account not found");
+    }
 
-export const createTransaction = mutation({
+    const normalizedAmount = args.category === "income" ? Math.abs(args.amount) : -Math.abs(args.amount);
+
+    const id = await ctx.db.insert("transactions", {
+      ...args,
+      amount: normalizedAmount,
+      userId: args.userId
+    })
+
+    await ctx.db.patch("accounts", args.accountId, {
+      balance: account.balance + normalizedAmount
+    })
+
+    const doc = await ctx.db.get(id)
+    await aggregateMonthlyTransactionsByUser.insert(ctx, doc!)
+    return id;
+}
+
+export const applyTransaction = mutation({
   args: {
     amount: schema.tables.transactions.validator.fields.amount,
     description: schema.tables.transactions.validator.fields.description,
@@ -98,34 +108,17 @@ export const createTransaction = mutation({
     date: schema.tables.transactions.validator.fields.date,
     accountId: schema.tables.transactions.validator.fields.accountId,
   },
-  handler: async (ctx, params) => {
-
-    if (params.amount === 0) {
-      throw new Error("Amount must be greater than zero");
-    }
-
-    const account = await ctx.db.get(params.accountId)
-
-    if (account === null) {
-      throw new Error("Account not found");
-    }
+  handler: async (ctx, {amount, description, category, date, accountId}) => {
 
     const user = await authComponent.getAuthUser(ctx);
-    const normalizedAmount = params.category === "income" ? Math.abs(params.amount) : -Math.abs(params.amount);
-
-    const id = await ctx.db.insert("transactions", {
-      ...params,
-      amount: normalizedAmount,
+    return await createTransaction(ctx, {
+      amount,
+      description,
+      category,
+      date,
+      accountId,
       userId: user._id
     })
-
-    await ctx.db.patch("accounts", params.accountId, {
-      balance: account.balance + normalizedAmount
-    })
-
-    const doc = await ctx.db.get(id)
-    await aggregateMonthlyTransactionsByUser.insert(ctx, doc!)
-    return id;
   }
 })
 

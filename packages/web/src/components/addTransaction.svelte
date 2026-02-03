@@ -64,7 +64,7 @@
 				console.error('Select an account');
 				return;
 			}
-			await convexClient.mutation(api.transactions.createTransaction, {
+			await convexClient.mutation(api.transactions.applyTransaction, {
 				amount: Math.abs(amount as number),
 				category,
 				description,
