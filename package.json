@@ -8,5 +8,8 @@
   "scripts": {
     "dev": "bun run --parallel dev",
     "build": "bun run --parallel build"
+  },
+  "overrides": {
+    "lightningcss": "1.30.1"
   }
 }
