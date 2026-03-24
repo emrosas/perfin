@@ -2,6 +2,12 @@
   "name": "@perfin/backend",
   "version": "1.0.0",
   "type": "module",
+  "exports": {
+    "./convex": {
+      "types": "./convex/_generated/api.d.ts",
+      "default": "./convex/_generated/api.js"
+    }
+  },
   "dependencies": {
     "@convex-dev/aggregate": "^0.2.0",
     "@convex-dev/better-auth": "^0.10.9",
@@ -13,6 +19,7 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
+    "@types/node": "^25.5.0",
     "typescript": "latest"
   },
   "scripts": {

@@ -4,7 +4,12 @@ import { authComponent } from "./auth";
 
 export const getCurrentUserAccounts = query({
   handler: async (ctx) => {
-    const user = await authComponent.getAuthUser(ctx);
+    let user;
+    try {
+      user = await authComponent.getAuthUser(ctx);
+    } catch {
+      return null;
+    }
 
     if (!user) {
       return null;

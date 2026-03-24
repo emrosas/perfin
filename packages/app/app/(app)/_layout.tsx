@@ -1,8 +1,8 @@
 import { useConvexAuth } from "convex/react";
-import { Redirect } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
 
-export default function Index() {
+export default function AppLayout() {
   const { isLoading, isAuthenticated } = useConvexAuth();
 
   if (isLoading) {
@@ -13,9 +13,9 @@ export default function Index() {
     );
   }
 
-  if (isAuthenticated) {
-    return <Redirect href="/(app)" />;
+  if (!isAuthenticated) {
+    return <Redirect href="/(auth)/login" />;
   }
 
-  return <Redirect href="/(auth)/login" />;
+  return <Stack screenOptions={{ headerShown: false }} />;
 }

@@ -19,6 +19,12 @@ export const createAuth = (ctx: GenericCtx<DataModel>) => {
   return betterAuth({
     baseURL: siteUrl,
     database: authComponent.adapter(ctx),
+    // Disable CSRF origin check — required for React Native clients
+    // which don't send a browser Origin header (CSRF is a browser-only attack)
+    advanced: {
+      crossSubDomainCookies: { enabled: false },
+      disableCSRFCheck: true,
+    },
     // Configure simple, non-verified email/password to get started
     emailAndPassword: {
       enabled: true,
