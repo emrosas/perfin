@@ -11,6 +11,7 @@ import {
 import { FinanceCard, type CardColor } from "../../components/FinanceCard";
 import { useMemo, useState, useCallback } from "react";
 import { useRouter } from "expo-router";
+import { useConvexAuth } from "convex/react";
 import { Ionicons } from "@expo/vector-icons";
 import IncomeIcon from "../../assets/svg/income.svg";
 import ExpenseIcon from "../../assets/svg/expense.svg";
@@ -54,15 +55,16 @@ function getMonthRange(offset: number) {
 
 export default function HomeScreen() {
   const router = useRouter();
-  const accounts = useQuery(api.accounts.getCurrentUserAccounts);
+  const { isAuthenticated } = useConvexAuth();
+  const accounts = useQuery(api.accounts.getCurrentUserAccounts, isAuthenticated ? undefined : "skip");
   const [monthOffset, setMonthOffset] = useState(0);
 
   const { start, end, label } = useMemo(() => getMonthRange(monthOffset), [monthOffset]);
 
-  const transactions = useQuery(api.transactions.listMonthlyTransactions, {
-    monthStart: start,
-    monthEnd: end,
-  });
+  const transactions = useQuery(
+    api.transactions.listMonthlyTransactions,
+    isAuthenticated ? { monthStart: start, monthEnd: end } : "skip"
+  );
 
   const totalBalance = accounts
     ? accounts.reduce((sum, a) => sum + a.balance, 0)

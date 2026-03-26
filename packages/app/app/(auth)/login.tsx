@@ -7,10 +7,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Image,
 } from "react-native";
 import { Link } from "expo-router";
 import { authClient } from "../../lib/authClient";
-import Logo from "../../assets/svg/logo.svg";
 import PasswordHidden from "../../assets/svg/password-hidden.svg";
 import PasswordShown from "../../assets/svg/password-shown.svg";
 import Remove from "../../assets/svg/remove.svg";
@@ -54,32 +54,50 @@ export default function LoginScreen() {
       <View className="flex-1 justify-center px-6">
         {/* Logo & Title */}
         <View className="items-center mb-10">
-          <Logo width={172} height={140} />
-          <Text className="text-base text-gray-500 text-center mt-6 leading-loose">
+          <Image
+            source={require("../../assets/images/logo-vertical.png")}
+            style={{ width: 172, height: 140 }}
+            resizeMode="contain"
+          />
+          <Text className="text-base text-gray-500 mt-4 text-center leading-8">
             Manage your personal finances{"\n"}without all the complexity.
           </Text>
         </View>
 
         {/* Email Field */}
         <View className="mb-4">
-          <Text className="text-base font-medium text-gray-700 mb-2">
+          <Text className="font-body-medium text-dark mb-2" style={{ fontSize: 15 }}>
             Email
           </Text>
-          <View className="relative">
+          <View style={{ position: "relative" }}>
             <TextInput
-              className="bg-gray-100 font-mono rounded-2xl px-4 py-4 text-base text-gray-900 pr-12"
+              className="font-mono text-dark"
               placeholder="support@shiftm.com"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor="#9ca3af"
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
               keyboardType="email-address"
               autoComplete="email"
+              style={{
+                backgroundColor: "#E2E2E9",
+                borderRadius: 12,
+                paddingHorizontal: 16,
+                paddingVertical: 14,
+                fontSize: 15,
+                paddingRight: 44,
+              }}
             />
             {email.length > 0 && (
               <TouchableOpacity
-                className="absolute right-4 top-4"
                 onPress={() => setEmail("")}
+                style={{
+                  position: "absolute",
+                  right: 12,
+                  top: 0,
+                  bottom: 0,
+                  justifyContent: "center",
+                }}
               >
                 <Remove width={16} height={16} />
               </TouchableOpacity>
@@ -89,22 +107,36 @@ export default function LoginScreen() {
 
         {/* Password Field */}
         <View className="mb-6">
-          <Text className="text-base font-medium text-gray-700 mb-2">
+          <Text className="font-body-medium text-dark mb-2" style={{ fontSize: 15 }}>
             Password
           </Text>
-          <View className="relative">
+          <View style={{ position: "relative" }}>
             <TextInput
-              className="bg-gray-100 rounded-2xl px-4 py-4 font-mono text-base text-gray-900 pr-12"
+              className="font-mono text-dark"
               placeholder="********"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor="#9ca3af"
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
               autoComplete="password"
+              style={{
+                backgroundColor: "#E2E2E9",
+                borderRadius: 12,
+                paddingHorizontal: 16,
+                paddingVertical: 14,
+                fontSize: 15,
+                paddingRight: 44,
+              }}
             />
             <TouchableOpacity
-              className="absolute right-4 top-4"
               onPress={() => setShowPassword(!showPassword)}
+              style={{
+                position: "absolute",
+                right: 12,
+                top: 0,
+                bottom: 0,
+                justifyContent: "center",
+              }}
             >
               {showPassword ? (
                 <PasswordShown width={16} height={16} />

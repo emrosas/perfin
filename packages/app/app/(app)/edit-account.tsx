@@ -20,6 +20,7 @@ export default function EditAccountScreen() {
       key={id}
       heading="Edit Account"
       buttonLabel="Save"
+      returnTo="/(app)/accounts"
       initialValues={{
         name: name ?? "",
         balance: balance ?? "",
@@ -34,7 +35,7 @@ export default function EditAccountScreen() {
           type: values.type,
           color: values.color,
         });
-        router.back();
+        router.navigate("/(app)/accounts");
       }}
     />
   );

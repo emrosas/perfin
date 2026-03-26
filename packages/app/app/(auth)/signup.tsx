@@ -75,56 +75,84 @@ export default function SignupScreen() {
 
         {/* Name Field */}
         <View className="mb-4">
-          <Text className="text-base font-medium text-gray-700 mb-2">
+          <Text className="font-body-medium text-dark mb-2" style={{ fontSize: 15 }}>
             Name
           </Text>
           <TextInput
-            className="bg-gray-100 rounded-xl px-4 py-4 text-base text-gray-900"
+            className="font-mono text-dark"
             placeholder="John Doe"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor="#9ca3af"
             value={name}
             onChangeText={setName}
             autoComplete="name"
+            style={{
+              backgroundColor: "#E2E2E9",
+              borderRadius: 12,
+              paddingHorizontal: 16,
+              paddingVertical: 14,
+              fontSize: 15,
+            }}
           />
         </View>
 
         {/* Email Field */}
         <View className="mb-4">
-          <Text className="text-base font-medium text-gray-700 mb-2">
+          <Text className="font-body-medium text-dark mb-2" style={{ fontSize: 15 }}>
             Email
           </Text>
           <TextInput
-            className="bg-gray-100 rounded-xl px-4 py-4 text-base text-gray-900"
+            className="font-mono text-dark"
             placeholder="support@shiftm.com"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor="#9ca3af"
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
             keyboardType="email-address"
             autoComplete="email"
+            style={{
+              backgroundColor: "#E2E2E9",
+              borderRadius: 12,
+              paddingHorizontal: 16,
+              paddingVertical: 14,
+              fontSize: 15,
+            }}
           />
         </View>
 
         {/* Password Field */}
         <View className="mb-6">
-          <Text className="text-base font-medium text-gray-700 mb-2">
+          <Text className="font-body-medium text-dark mb-2" style={{ fontSize: 15 }}>
             Password
           </Text>
-          <View className="relative">
+          <View style={{ position: "relative" }}>
             <TextInput
-              className="bg-gray-100 rounded-xl px-4 py-4 text-base text-gray-900 pr-12"
+              className="font-mono text-dark"
               placeholder="********"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor="#9ca3af"
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
               autoComplete="new-password"
+              style={{
+                backgroundColor: "#E2E2E9",
+                borderRadius: 12,
+                paddingHorizontal: 16,
+                paddingVertical: 14,
+                fontSize: 15,
+                paddingRight: 44,
+              }}
             />
             <TouchableOpacity
-              className="absolute right-4 top-4"
               onPress={() => setShowPassword(!showPassword)}
+              style={{
+                position: "absolute",
+                right: 12,
+                top: 0,
+                bottom: 0,
+                justifyContent: "center",
+              }}
             >
-              <Text className="text-gray-400 text-sm">
+              <Text className="font-body text-dark" style={{ fontSize: 13 }}>
                 {showPassword ? "Hide" : "Show"}
               </Text>
             </TouchableOpacity>

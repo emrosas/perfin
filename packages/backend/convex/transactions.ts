@@ -6,6 +6,26 @@ import { v } from "convex/values";
 import { authComponent } from "./auth";
 import type { User } from "better-auth";
 
+export const listByAccount = query({
+  args: {
+    accountId: v.id("accounts"),
+  },
+  handler: async (ctx, { accountId }) => {
+    const user = await authComponent.getAuthUser(ctx);
+
+    const account = await ctx.db.get(accountId);
+    if (!account || account.userId !== user._id) {
+      throw new Error("Account not found");
+    }
+
+    return await ctx.db
+      .query("transactions")
+      .withIndex("by_accountId", (q) => q.eq("accountId", accountId))
+      .order("desc")
+      .collect();
+  },
+});
+
 export const listMonthlyTransactions = query({
   args: {
     monthStart: v.string(),

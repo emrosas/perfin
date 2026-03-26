@@ -2,6 +2,7 @@ import { useQuery } from "convex/react";
 import { api } from "@perfin/backend/convex";
 import { Text, View, ActivityIndicator, ScrollView, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
+import { useConvexAuth } from "convex/react";
 import { FinanceCard } from "../../components/FinanceCard";
 import { DEFAULT_ACCOUNT_COLOR, DEFAULT_ACCOUNT_TYPE } from "../../lib/accountColors";
 import BagIcon from "../../assets/svg/bag.svg";
@@ -11,7 +12,8 @@ import type { ComponentType } from "react";
 
 export default function AccountsScreen() {
   const router = useRouter();
-  const accounts = useQuery(api.accounts.getCurrentUserAccounts);
+  const { isAuthenticated } = useConvexAuth();
+  const accounts = useQuery(api.accounts.getCurrentUserAccounts, isAuthenticated ? undefined : "skip");
 
   return (
     <View className="flex-1 bg-transparent pt-top px-page">
@@ -46,7 +48,7 @@ export default function AccountsScreen() {
                 activeOpacity={0.7}
                 onPress={() =>
                   router.push({
-                    pathname: "/(app)/edit-account",
+                    pathname: "/(app)/account-detail",
                     params: {
                       id: account._id,
                       name: account.name,
@@ -61,6 +63,7 @@ export default function AccountsScreen() {
                   title={account.name}
                   amount={account.balance}
                   accentColor={accountColor}
+                  subtitle={["Edit / Adjust"]}
                   SvgIcon={IconSvg as ComponentType<{ width: number; height: number }>}
                   showIconBg
                 />

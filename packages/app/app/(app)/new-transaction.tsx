@@ -19,7 +19,7 @@ export default function NewTransactionScreen() {
           date,
           accountId: accountId as any,
         });
-        router.back();
+        router.navigate("/(app)/");
       }}
     />
   );

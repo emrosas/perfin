@@ -16,6 +16,7 @@ export default function EditTransactionScreen() {
   }>();
 
   const updateTransaction = useMutation(api.transactions.updateTransaction);
+  const deleteTransaction = useMutation(api.transactions.deleteTransaction);
 
   // Parse date string (YYYY-MM-DD) into a Date object
   const initialDate = date ? new Date(date + "T00:00:00") : new Date();
@@ -40,7 +41,11 @@ export default function EditTransactionScreen() {
           date: values.date,
           accountId: values.accountId as any,
         });
-        router.back();
+        router.navigate("/(app)/");
+      }}
+      onDelete={async () => {
+        await deleteTransaction({ id: id as any });
+        router.navigate("/(app)/");
       }}
     />
   );

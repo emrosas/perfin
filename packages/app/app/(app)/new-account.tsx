@@ -11,9 +11,10 @@ export default function NewAccountScreen() {
     <AccountForm
       heading="New Account"
       buttonLabel="Create"
+      resetOnSubmit
       onSubmit={async ({ name, balance, type, color }) => {
         await createAccount({ name, balance, type, color });
-        router.back();
+        router.navigate("/(app)/accounts");
       }}
     />
   );

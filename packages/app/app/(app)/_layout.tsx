@@ -42,6 +42,10 @@ export default function AppLayout() {
         name="edit-account"
         options={{ href: null }}
       />
+      <Tabs.Screen
+        name="account-detail"
+        options={{ href: null }}
+      />
     </Tabs>
   );
 }

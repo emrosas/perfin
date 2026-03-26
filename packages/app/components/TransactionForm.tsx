@@ -12,7 +12,7 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { useQuery } from "convex/react";
+import { useQuery, useConvexAuth } from "convex/react";
 import { api } from "@perfin/backend/convex";
 import { FinanceCard } from "./FinanceCard";
 import IncomeIcon from "../assets/svg/income.svg";
@@ -60,6 +60,10 @@ interface TransactionFormProps {
   }) => Promise<void>;
   /** Whether to reset the form after successful submit */
   resetOnSubmit?: boolean;
+  /** Route to navigate back to (defaults to home) */
+  returnTo?: string;
+  /** Called when the delete button is pressed (only shown when provided) */
+  onDelete?: () => Promise<void>;
 }
 
 export function TransactionForm({
@@ -67,9 +71,19 @@ export function TransactionForm({
   initialValues,
   onSubmit,
   resetOnSubmit = false,
+  returnTo,
+  onDelete,
 }: TransactionFormProps) {
   const router = useRouter();
-  const accounts = useQuery(api.accounts.getCurrentUserAccounts);
+  const goBack = () => {
+    if (returnTo) {
+      router.navigate(returnTo as any);
+    } else {
+      router.navigate("/(app)/");
+    }
+  };
+  const { isAuthenticated } = useConvexAuth();
+  const accounts = useQuery(api.accounts.getCurrentUserAccounts, isAuthenticated ? undefined : "skip");
 
   const [category, setCategory] = useState<Category>(initialValues?.category ?? "income");
   const [title, setTitle] = useState(initialValues?.title ?? "New Transaction");
@@ -79,6 +93,7 @@ export function TransactionForm({
   const [accountId, setAccountId] = useState<string | null>(initialValues?.accountId ?? null);
   const [showAccountPicker, setShowAccountPicker] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const selectedAccount = useMemo(
     () => accounts?.find((a) => a._id === accountId),
@@ -146,7 +161,7 @@ export function TransactionForm({
           {/* Header with back button */}
           <View style={{ position: "relative", alignItems: "center", marginBottom: 24 }}>
             <TouchableOpacity
-              onPress={() => router.back()}
+              onPress={goBack}
               hitSlop={12}
               style={{ position: "absolute", left: 0, top: 0, bottom: 0, justifyContent: "center" }}
             >
@@ -385,6 +400,51 @@ export function TransactionForm({
             </Text>
             <Ionicons name="chevron-down" size={20} color="#0E0844" />
           </TouchableOpacity>
+
+          {/* Delete button (edit mode only) */}
+          {onDelete && (
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => {
+                Alert.alert(
+                  "Delete Transaction",
+                  "Are you sure you want to delete this transaction? This action cannot be undone.",
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                      text: "Delete",
+                      style: "destructive",
+                      onPress: async () => {
+                        setDeleting(true);
+                        try {
+                          await onDelete();
+                        } catch (err: any) {
+                          Alert.alert("Error", err.message ?? "Something went wrong.");
+                          setDeleting(false);
+                        }
+                      },
+                    },
+                  ]
+                );
+              }}
+              disabled={deleting}
+              style={{
+                backgroundColor: "#FEE2E2",
+                borderRadius: 12,
+                paddingVertical: 14,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                marginTop: 24,
+                opacity: deleting ? 0.6 : 1,
+              }}
+            >
+              <Ionicons name="trash-outline" size={18} color="#DC2626" style={{ marginRight: 8 }} />
+              <Text style={{ fontSize: 16, color: "#DC2626", fontWeight: "600" }}>
+                {deleting ? "Deleting..." : "Delete Transaction"}
+              </Text>
+            </TouchableOpacity>
+          )}
 
           {/* Account picker modal */}
           <Modal

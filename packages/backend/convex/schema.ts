@@ -12,7 +12,7 @@ export default defineSchema({
     date: v.string(),
     accountId: v.id("accounts"),
     userId: v.string(),
-  }),
+  }).index("by_accountId", ["accountId"]),
   accounts: defineTable({
     name: v.string(),
     balance: v.number(),

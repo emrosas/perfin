@@ -30,6 +30,8 @@ interface AccountFormProps {
   heading: string;
   buttonLabel: string;
   initialValues?: Partial<AccountFormValues>;
+  returnTo?: string;
+  resetOnSubmit?: boolean;
   onSubmit: (values: {
     name: string;
     balance: number;
@@ -42,9 +44,18 @@ export function AccountForm({
   heading,
   buttonLabel,
   initialValues,
+  returnTo,
+  resetOnSubmit = false,
   onSubmit,
 }: AccountFormProps) {
   const router = useRouter();
+  const goBack = () => {
+    if (returnTo) {
+      router.navigate(returnTo as any);
+    } else {
+      router.navigate("/(app)/accounts");
+    }
+  };
 
   const [name, setName] = useState(initialValues?.name ?? "New Account");
   const [balance, setBalance] = useState(initialValues?.balance ?? "");
@@ -70,6 +81,12 @@ export function AccountForm({
         type,
         color,
       });
+      if (resetOnSubmit) {
+        setName("New Account");
+        setBalance("");
+        setType(DEFAULT_ACCOUNT_TYPE);
+        setColor(DEFAULT_ACCOUNT_COLOR);
+      }
     } catch (err: any) {
       Alert.alert("Error", err.message ?? "Something went wrong.");
     } finally {
@@ -91,7 +108,7 @@ export function AccountForm({
           {/* Header with back button */}
           <View style={{ position: "relative", alignItems: "center", marginBottom: 24 }}>
             <TouchableOpacity
-              onPress={() => router.back()}
+              onPress={goBack}
               hitSlop={12}
               style={{ position: "absolute", left: 0, top: 0, bottom: 0, justifyContent: "center" }}
             >
