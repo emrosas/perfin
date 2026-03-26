@@ -10,6 +10,10 @@ import {
 } from "react-native";
 import { Link } from "expo-router";
 import { authClient } from "../../lib/authClient";
+import Logo from "../../assets/svg/logo.svg";
+import PasswordHidden from "../../assets/svg/password-hidden.svg";
+import PasswordShown from "../../assets/svg/password-shown.svg";
+import Remove from "../../assets/svg/remove.svg";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -45,15 +49,13 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1 bg-white"
+      className="flex-1 bg-transparent"
     >
       <View className="flex-1 justify-center px-6">
         {/* Logo & Title */}
         <View className="items-center mb-10">
-          <Text className="text-5xl font-extrabold text-gray-900 mb-3">
-            Perfin
-          </Text>
-          <Text className="text-base text-gray-500 text-center">
+          <Logo width={172} height={140} />
+          <Text className="text-base text-gray-500 text-center mt-6 leading-loose">
             Manage your personal finances{"\n"}without all the complexity.
           </Text>
         </View>
@@ -63,16 +65,26 @@ export default function LoginScreen() {
           <Text className="text-base font-medium text-gray-700 mb-2">
             Email
           </Text>
-          <TextInput
-            className="bg-gray-100 rounded-xl px-4 py-4 text-base text-gray-900"
-            placeholder="support@shiftm.com"
-            placeholderTextColor="#9CA3AF"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            autoComplete="email"
-          />
+          <View className="relative">
+            <TextInput
+              className="bg-gray-100 font-mono rounded-2xl px-4 py-4 text-base text-gray-900 pr-12"
+              placeholder="support@shiftm.com"
+              placeholderTextColor="#9CA3AF"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              autoComplete="email"
+            />
+            {email.length > 0 && (
+              <TouchableOpacity
+                className="absolute right-4 top-4"
+                onPress={() => setEmail("")}
+              >
+                <Remove width={16} height={16} />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
 
         {/* Password Field */}
@@ -82,7 +94,7 @@ export default function LoginScreen() {
           </Text>
           <View className="relative">
             <TextInput
-              className="bg-gray-100 rounded-xl px-4 py-4 text-base text-gray-900 pr-12"
+              className="bg-gray-100 rounded-2xl px-4 py-4 font-mono text-base text-gray-900 pr-12"
               placeholder="********"
               placeholderTextColor="#9CA3AF"
               value={password}
@@ -94,16 +106,18 @@ export default function LoginScreen() {
               className="absolute right-4 top-4"
               onPress={() => setShowPassword(!showPassword)}
             >
-              <Text className="text-gray-400 text-sm">
-                {showPassword ? "Hide" : "Show"}
-              </Text>
+              {showPassword ? (
+                <PasswordShown width={16} height={16} />
+              ) : (
+                <PasswordHidden width={16} height={16} />
+              )}
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Login Button */}
         <TouchableOpacity
-          className="bg-indigo-500 rounded-2xl py-4 items-center"
+          className="bg-brand rounded-2xl border-b-2 border-brand-alt py-4 items-center"
           onPress={handleLogin}
           disabled={isLoading}
           style={{ opacity: isLoading ? 0.7 : 1 }}
@@ -120,7 +134,7 @@ export default function LoginScreen() {
           </Text>
           <Link href="/(auth)/signup" asChild>
             <TouchableOpacity>
-              <Text className="text-indigo-500 text-base font-semibold">
+              <Text className="text-brand text-base font-semibold">
                 Sign up
               </Text>
             </TouchableOpacity>

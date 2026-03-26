@@ -3,3 +3,20 @@
 @import "tailwindcss/utilities.css";
 
 @import "nativewind/theme";
+
+@theme {
+  --font-body: "GoogleSans_400Regular";
+  --font-body-medium: "GoogleSans_500Medium";
+  --font-body-semibold: "GoogleSans_600SemiBold";
+  --font-body-bold: "GoogleSans_700Bold";
+  --font-mono: "GoogleSansCode_400Regular";
+  --font-mono-bold: "GoogleSansCode_700Bold";
+
+  --color-brand: #3E3BF1;
+  --color-brand-alt: #2F157A;
+  --color-dark: #0E0844;
+  --color-navbar-bg: #E2E2E9;
+
+  --spacing-page: 16px;
+  --spacing-top: 128px;
+}

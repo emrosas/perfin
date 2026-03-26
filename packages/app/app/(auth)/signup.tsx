@@ -60,7 +60,7 @@ export default function SignupScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1 bg-white"
+      className="flex-1 bg-transparent"
     >
       <View className="flex-1 justify-center px-6">
         {/* Logo & Title */}
@@ -133,7 +133,7 @@ export default function SignupScreen() {
 
         {/* Sign Up Button */}
         <TouchableOpacity
-          className="bg-indigo-500 rounded-2xl py-4 items-center"
+          className="bg-brand rounded-2xl py-4 items-center"
           onPress={handleSignup}
           disabled={isLoading}
           style={{ opacity: isLoading ? 0.7 : 1 }}
@@ -150,7 +150,7 @@ export default function SignupScreen() {
           </Text>
           <Link href="/(auth)/login" asChild>
             <TouchableOpacity>
-              <Text className="text-indigo-500 text-base font-semibold">
+              <Text className="text-brand text-base font-semibold">
                 Log in
               </Text>
             </TouchableOpacity>

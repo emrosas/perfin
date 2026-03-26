@@ -122,6 +122,71 @@ export const applyTransaction = mutation({
   }
 })
 
+export const updateTransaction = mutation({
+  args: {
+    id: v.id("transactions"),
+    amount: schema.tables.transactions.validator.fields.amount,
+    description: schema.tables.transactions.validator.fields.description,
+    category: schema.tables.transactions.validator.fields.category,
+    date: schema.tables.transactions.validator.fields.date,
+    accountId: schema.tables.transactions.validator.fields.accountId,
+  },
+  handler: async (ctx, { id, amount, description, category, date, accountId }) => {
+    const user = await authComponent.getAuthUser(ctx);
+    const existing = await ctx.db.get(id);
+
+    if (!existing) {
+      throw new Error("Transaction not found");
+    }
+
+    if (existing.userId !== user._id) {
+      throw new Error("Not authorized");
+    }
+
+    // Reverse old transaction's effect on old account
+    const oldAccount = await ctx.db.get(existing.accountId);
+    if (!oldAccount) {
+      throw new Error("Old account not found");
+    }
+    await ctx.db.patch("accounts", existing.accountId, {
+      balance: oldAccount.balance - existing.amount,
+    });
+
+    // Remove old aggregate entry
+    await aggregateMonthlyTransactionsByUser.deleteIfExists(ctx, existing);
+
+    // Compute new normalized amount
+    const normalizedAmount = category === "income" ? Math.abs(amount) : -Math.abs(amount);
+
+    // Apply new transaction's effect on (possibly different) account
+    const newAccount = existing.accountId === accountId
+      ? { ...oldAccount, balance: oldAccount.balance - existing.amount }
+      : await ctx.db.get(accountId);
+
+    if (!newAccount) {
+      throw new Error("New account not found");
+    }
+    await ctx.db.patch("accounts", accountId, {
+      balance: newAccount.balance + normalizedAmount,
+    });
+
+    // Update the transaction document
+    await ctx.db.patch("transactions", id, {
+      amount: normalizedAmount,
+      description,
+      category,
+      date,
+      accountId,
+    });
+
+    // Re-insert aggregate entry with updated data
+    const updated = await ctx.db.get(id);
+    await aggregateMonthlyTransactionsByUser.insert(ctx, updated!);
+
+    return id;
+  },
+});
+
 export const deleteTransaction = mutation({
   args: { id: v.id("transactions") },
   handler: async (ctx, {id}) => {

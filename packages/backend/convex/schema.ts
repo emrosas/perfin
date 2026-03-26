@@ -17,6 +17,8 @@ export default defineSchema({
     name: v.string(),
     balance: v.number(),
     userId: v.string(),
+    type: v.optional(v.union(v.literal("card"), v.literal("physical"))),
+    color: v.optional(v.string()),
   }).index("by_userId", ["userId"]),
 })
 
