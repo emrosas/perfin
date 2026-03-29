@@ -11,13 +11,14 @@ export default function NewTransactionScreen() {
     <TransactionForm
       heading="New Transaction"
       resetOnSubmit
-      onSubmit={async ({ category, title, amount, date, accountId }) => {
+      onSubmit={async ({ category, title, amount, date, accountId, expenseCategory }) => {
         await applyTransaction({
           amount,
           description: title,
           category,
           date,
           accountId: accountId as any,
+          expenseCategory,
         });
         router.navigate("/(app)/");
       }}

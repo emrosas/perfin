@@ -20,6 +20,7 @@ import ExpenseIcon from "../assets/svg/expense.svg";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
 import { setOnSubmit, setSubmitting as setGlobalSubmitting } from "../lib/newTransactionSubmit";
+import { EXPENSE_CATEGORIES, DEFAULT_EXPENSE_CATEGORY, getCategoryLabel } from "../lib/categories";
 
 type Category = "income" | "expense";
 
@@ -43,6 +44,7 @@ export interface TransactionFormValues {
   amount: string;
   date: Date;
   accountId: string | null;
+  expenseCategory: string;
 }
 
 interface TransactionFormProps {
@@ -57,6 +59,7 @@ interface TransactionFormProps {
     amount: number;
     date: string;
     accountId: string;
+    expenseCategory?: string;
   }) => Promise<void>;
   /** Whether to reset the form after successful submit */
   resetOnSubmit?: boolean;
@@ -85,6 +88,44 @@ export function TransactionForm({
   const { isAuthenticated } = useConvexAuth();
   const accounts = useQuery(api.accounts.getCurrentUserAccounts, isAuthenticated ? undefined : "skip");
 
+  // Fetch current month budgets & spending for over-budget indicators
+  const currentMonth = useMemo(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  }, []);
+  const monthBounds = useMemo(() => {
+    const [year, m] = currentMonth.split("-").map(Number);
+    const start = `${year}-${String(m).padStart(2, "0")}-01`;
+    const lastDay = new Date(year, m, 0).getDate();
+    const end = `${year}-${String(m).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+    return { start, end };
+  }, [currentMonth]);
+
+  const budgets = useQuery(
+    api.categoryBudgets.getBudgets,
+    isAuthenticated ? { month: currentMonth } : "skip"
+  );
+  const spending = useQuery(
+    api.categoryBudgets.getCategorySpending,
+    isAuthenticated ? { monthStart: monthBounds.start, monthEnd: monthBounds.end } : "skip"
+  );
+
+  // Build maps for quick lookup
+  const budgetMap = useMemo(() => {
+    if (!budgets) return {};
+    return Object.fromEntries(budgets.map((b) => [b.category, b.budget]));
+  }, [budgets]);
+
+  const overBudgetSet = useMemo(() => {
+    if (!spending || !budgets) return new Set<string>();
+    const set = new Set<string>();
+    for (const b of budgets) {
+      const spent = spending[b.category] ?? 0;
+      if (spent >= b.budget) set.add(b.category);
+    }
+    return set;
+  }, [spending, budgets]);
+
   const [category, setCategory] = useState<Category>(initialValues?.category ?? "income");
   const [title, setTitle] = useState(initialValues?.title ?? "New Transaction");
   const [amount, setAmount] = useState(initialValues?.amount ?? "");
@@ -92,6 +133,8 @@ export function TransactionForm({
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [accountId, setAccountId] = useState<string | null>(initialValues?.accountId ?? null);
   const [showAccountPicker, setShowAccountPicker] = useState(false);
+  const [expenseCategory, setExpenseCategory] = useState(initialValues?.expenseCategory ?? DEFAULT_EXPENSE_CATEGORY);
+  const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -125,6 +168,7 @@ export function TransactionForm({
         amount: parsedAmount,
         date: toISODate(date),
         accountId,
+        expenseCategory: category === "expense" ? expenseCategory : undefined,
       });
       if (resetOnSubmit) {
         setCategory("income");
@@ -132,6 +176,7 @@ export function TransactionForm({
         setAmount("");
         setDate(new Date());
         setAccountId(null);
+        setExpenseCategory(DEFAULT_EXPENSE_CATEGORY);
       }
     } catch (err: any) {
       Alert.alert("Error", err.message ?? "Something went wrong.");
@@ -139,7 +184,7 @@ export function TransactionForm({
       setSubmitting(false);
       setGlobalSubmitting(false);
     }
-  }, [title, parsedAmount, accountId, category, date, onSubmit, resetOnSubmit]);
+  }, [title, parsedAmount, accountId, category, date, expenseCategory, onSubmit, resetOnSubmit]);
 
   // Register submit handler for FAB checkmark
   useEffect(() => {
@@ -181,7 +226,7 @@ export function TransactionForm({
             amount={category === "expense" ? -parsedAmount : parsedAmount}
             color={category === "income" ? "blue" : "red"}
             subtitle={[
-              category === "income" ? "Income" : "Expense",
+              category === "income" ? "Income" : getCategoryLabel(expenseCategory),
               formatDateDisplay(date),
               selectedAccount?.name ?? "—",
             ]}
@@ -301,6 +346,47 @@ export function TransactionForm({
               fontSize: 15,
             }}
           />
+
+          {/* Expense Category — only shown when type is "expense" */}
+          {category === "expense" && (
+            <>
+              <Text className="font-body-medium text-dark mt-5 mb-2" style={{ fontSize: 15 }}>
+                Category
+              </Text>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setShowCategoryPicker(true)}
+                style={{
+                  backgroundColor: "#E2E2E9",
+                  borderRadius: 12,
+                  paddingHorizontal: 16,
+                  paddingVertical: 14,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text
+                    className="font-mono text-dark"
+                    style={{ fontSize: 15 }}
+                  >
+                    {getCategoryLabel(expenseCategory)}
+                  </Text>
+                  {overBudgetSet.has(expenseCategory) && (
+                    <Text style={{ fontSize: 12, color: "#EF4444", fontWeight: "500", marginTop: 2 }}>
+                      Over Budget
+                    </Text>
+                  )}
+                </View>
+                {overBudgetSet.has(expenseCategory) ? (
+                  <Ionicons name="alert-circle" size={20} color="#EF4444" />
+                ) : (
+                  <Ionicons name="chevron-down" size={20} color="#0E0844" />
+                )}
+              </TouchableOpacity>
+            </>
+          )}
 
           {/* Date */}
           <Text className="font-body-medium text-dark mt-5 mb-2" style={{ fontSize: 15 }}>
@@ -445,6 +531,81 @@ export function TransactionForm({
               </Text>
             </TouchableOpacity>
           )}
+
+          {/* Category picker modal */}
+          <Modal
+            visible={showCategoryPicker}
+            transparent
+            animationType="fade"
+            onRequestClose={() => setShowCategoryPicker(false)}
+          >
+            <TouchableOpacity
+              activeOpacity={1}
+              onPress={() => setShowCategoryPicker(false)}
+              style={{
+                flex: 1,
+                backgroundColor: "rgba(0,0,0,0.35)",
+                justifyContent: "flex-end",
+              }}
+            >
+              <View
+                style={{
+                  backgroundColor: "#fff",
+                  borderTopLeftRadius: 20,
+                  borderTopRightRadius: 20,
+                  paddingTop: 16,
+                  paddingBottom: 40,
+                  paddingHorizontal: 16,
+                }}
+              >
+                <Text
+                  className="font-body-bold text-dark text-center mb-4"
+                  style={{ fontSize: 17 }}
+                >
+                  Select Category
+                </Text>
+                <FlatList
+                  data={EXPENSE_CATEGORIES}
+                  keyExtractor={(item) => item.key}
+                  renderItem={({ item }) => {
+                    const isOver = overBudgetSet.has(item.key);
+                    return (
+                      <TouchableOpacity
+                        onPress={() => {
+                          setExpenseCategory(item.key);
+                          setShowCategoryPicker(false);
+                        }}
+                        style={{
+                          paddingVertical: 14,
+                          paddingHorizontal: 12,
+                          borderRadius: 10,
+                          backgroundColor:
+                            expenseCategory === item.key ? "#EEF2FF" : "transparent",
+                          flexDirection: "row",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Ionicons name={item.icon as any} size={20} color="#1e1b4b" style={{ marginRight: 12 }} />
+                        <View style={{ flex: 1 }}>
+                          <Text className="font-body-medium text-dark" style={{ fontSize: 16 }}>
+                            {item.label}
+                          </Text>
+                          {isOver && (
+                            <Text style={{ fontSize: 12, color: "#EF4444", fontWeight: "500", marginTop: 2 }}>
+                              Over Budget
+                            </Text>
+                          )}
+                        </View>
+                        {isOver && (
+                          <Ionicons name="alert-circle" size={18} color="#EF4444" />
+                        )}
+                      </TouchableOpacity>
+                    );
+                  }}
+                />
+              </View>
+            </TouchableOpacity>
+          </Modal>
 
           {/* Account picker modal */}
           <Modal

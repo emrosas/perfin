@@ -12,6 +12,7 @@ export default defineSchema({
     date: v.string(),
     accountId: v.id("accounts"),
     userId: v.string(),
+    expenseCategory: v.optional(v.string()),
   }).index("by_accountId", ["accountId"]),
   accounts: defineTable({
     name: v.string(),
@@ -20,6 +21,14 @@ export default defineSchema({
     type: v.optional(v.union(v.literal("card"), v.literal("physical"))),
     color: v.optional(v.string()),
   }).index("by_userId", ["userId"]),
+  categoryBudgets: defineTable({
+    userId: v.string(),
+    category: v.string(),
+    budget: v.number(),
+    month: v.string(), // "YYYY-MM"
+  })
+    .index("by_user_month", ["userId", "month"])
+    .index("by_user_category_month", ["userId", "category", "month"]),
 })
 
 

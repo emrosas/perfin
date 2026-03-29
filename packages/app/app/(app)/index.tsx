@@ -16,6 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 import IncomeIcon from "../../assets/svg/income.svg";
 import ExpenseIcon from "../../assets/svg/expense.svg";
 import { DEFAULT_ACCOUNT_COLOR } from "../../lib/accountColors";
+import { getCategoryLabel } from "../../lib/categories";
 
 const MONTH_NAMES = [
   "January", "February", "March", "April", "May", "June",
@@ -114,7 +115,7 @@ export default function HomeScreen() {
             <ActivityIndicator size="small" color="#3E3BF1" className="mt-6" />
           ) : accounts.length > 0 && totalBalance > 0 ? (
             <View className="flex-row mt-6" style={{ gap: 4 }}>
-              {accounts.map((account) => {
+              {[...accounts].sort((a, b) => a.balance - b.balance).map((account) => {
                 const fraction = account.balance / totalBalance;
                 if (fraction <= 0) return null;
                 const isSmall = fraction < 0.1;
@@ -200,6 +201,7 @@ export default function HomeScreen() {
                         amount: String(tx.amount),
                         date: tx.date,
                         accountId: tx.accountId,
+                        expenseCategory: (tx as any).expenseCategory ?? "",
                       },
                     })
                   }
@@ -209,7 +211,7 @@ export default function HomeScreen() {
                     amount={tx.amount}
                     color={color}
                     subtitle={[
-                      isIncome ? "Income" : "Expense",
+                      isIncome ? "Income" : getCategoryLabel((tx as any).expenseCategory),
                       formatDate(tx.date),
                       accountName,
                     ]}

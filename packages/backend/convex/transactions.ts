@@ -90,7 +90,8 @@ async function createTransaction(
     category: "income" | "expense",
     date: string,
     accountId: Id<"accounts">
-    userId: string
+    userId: string,
+    expenseCategory?: string,
   }
 ) {
     if (args.amount === 0) {
@@ -105,11 +106,18 @@ async function createTransaction(
 
     const normalizedAmount = args.category === "income" ? Math.abs(args.amount) : -Math.abs(args.amount);
 
-    const id = await ctx.db.insert("transactions", {
-      ...args,
+    const insertDoc: any = {
       amount: normalizedAmount,
-      userId: args.userId
-    })
+      category: args.category,
+      description: args.description,
+      date: args.date,
+      accountId: args.accountId,
+      userId: args.userId,
+    };
+    if (args.expenseCategory) {
+      insertDoc.expenseCategory = args.expenseCategory;
+    }
+    const id = await ctx.db.insert("transactions", insertDoc)
 
     await ctx.db.patch("accounts", args.accountId, {
       balance: account.balance + normalizedAmount
@@ -127,8 +135,9 @@ export const applyTransaction = mutation({
     category: schema.tables.transactions.validator.fields.category,
     date: schema.tables.transactions.validator.fields.date,
     accountId: schema.tables.transactions.validator.fields.accountId,
+    expenseCategory: v.optional(v.string()),
   },
-  handler: async (ctx, {amount, description, category, date, accountId}) => {
+  handler: async (ctx, {amount, description, category, date, accountId, expenseCategory}) => {
 
     const user = await authComponent.getAuthUser(ctx);
     return await createTransaction(ctx, {
@@ -137,7 +146,8 @@ export const applyTransaction = mutation({
       category,
       date,
       accountId,
-      userId: user._id
+      userId: user._id,
+      expenseCategory: category === "expense" ? expenseCategory : undefined,
     })
   }
 })
@@ -150,8 +160,9 @@ export const updateTransaction = mutation({
     category: schema.tables.transactions.validator.fields.category,
     date: schema.tables.transactions.validator.fields.date,
     accountId: schema.tables.transactions.validator.fields.accountId,
+    expenseCategory: v.optional(v.string()),
   },
-  handler: async (ctx, { id, amount, description, category, date, accountId }) => {
+  handler: async (ctx, { id, amount, description, category, date, accountId, expenseCategory }) => {
     const user = await authComponent.getAuthUser(ctx);
     const existing = await ctx.db.get(id);
 
@@ -197,6 +208,7 @@ export const updateTransaction = mutation({
       category,
       date,
       accountId,
+      expenseCategory: category === "expense" ? expenseCategory : undefined,
     });
 
     // Re-insert aggregate entry with updated data

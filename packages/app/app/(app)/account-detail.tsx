@@ -11,6 +11,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { FinanceCard, type CardColor } from "../../components/FinanceCard";
 import { DEFAULT_ACCOUNT_COLOR, DEFAULT_ACCOUNT_TYPE, getCardStyleFromHex } from "../../lib/accountColors";
+import { getCategoryLabel } from "../../lib/categories";
 import CardIcon from "../../assets/svg/card.svg";
 import BagIcon from "../../assets/svg/bag.svg";
 import IncomeIcon from "../../assets/svg/income.svg";
@@ -166,6 +167,7 @@ export default function AccountDetailScreen() {
                         amount: String(tx.amount),
                         date: tx.date,
                         accountId: tx.accountId,
+                        expenseCategory: (tx as any).expenseCategory ?? "",
                       },
                     })
                   }
@@ -175,7 +177,7 @@ export default function AccountDetailScreen() {
                     amount={tx.amount}
                     color={isIncome ? "blue" : "red"}
                     subtitle={[
-                      isIncome ? "Income" : "Expense",
+                      isIncome ? "Income" : getCategoryLabel((tx as any).expenseCategory),
                       formatDate(tx.date),
                       name ?? "Unknown",
                     ]}

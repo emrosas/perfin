@@ -6,13 +6,14 @@ import { View, ActivityIndicator } from "react-native";
 
 export default function EditTransactionScreen() {
   const router = useRouter();
-  const { id, category, title, amount, date, accountId } = useLocalSearchParams<{
+  const { id, category, title, amount, date, accountId, expenseCategory } = useLocalSearchParams<{
     id: string;
     category: string;
     title: string;
     amount: string;
     date: string;
     accountId: string;
+    expenseCategory: string;
   }>();
 
   const updateTransaction = useMutation(api.transactions.updateTransaction);
@@ -31,6 +32,7 @@ export default function EditTransactionScreen() {
         amount: amount ? String(Math.abs(parseFloat(amount))) : "",
         date: initialDate,
         accountId: accountId ?? null,
+        expenseCategory: expenseCategory ?? "miscellaneous",
       }}
       onSubmit={async (values) => {
         await updateTransaction({
@@ -40,6 +42,7 @@ export default function EditTransactionScreen() {
           category: values.category,
           date: values.date,
           accountId: values.accountId as any,
+          expenseCategory: values.expenseCategory,
         });
         router.navigate("/(app)/");
       }}
