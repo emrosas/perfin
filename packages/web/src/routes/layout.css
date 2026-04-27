@@ -12,6 +12,27 @@
 :root {
 	--radius: 0.625rem;
 	--background: oklch(98.93% 0.007 325.63);
+
+	/* Brand tokens (from app) */
+	--brand: #3E3BF1;
+	--brand-alt: #2F157A;
+	--dark: #0E0844;
+	--navbar-bg: #E2E2E9;
+
+	/* Spacing tokens (from app) */
+	--size-page: 16px;
+	--size-top: 128px;
+
+	/* Account accent colors (from app) */
+	--account-green: #71BD00;
+	--account-teal: #00B881;
+	--account-blue: #3086FF;
+	--account-indigo: #3E3BF1;
+	--account-purple: #8A38F5;
+	--account-pink: #FFA1AF;
+	--account-red: #FF4747;
+	--account-orange: #FF944D;
+	--account-yellow: #FFBD38;
 	--foreground: oklch(20.09% 0.105 275.86);
 	--card: oklch(1 0 0);
 	--card-foreground: oklch(0.129 0.042 264.695);
@@ -115,6 +136,27 @@
 	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
 	--color-sidebar-border: var(--sidebar-border);
 	--color-sidebar-ring: var(--sidebar-ring);
+
+	/* Brand */
+	--color-brand: var(--brand);
+	--color-brand-alt: var(--brand-alt);
+	--color-dark: var(--dark);
+	--color-navbar-bg: var(--navbar-bg);
+
+	/* Account accent colors */
+	--color-account-green: var(--account-green);
+	--color-account-teal: var(--account-teal);
+	--color-account-blue: var(--account-blue);
+	--color-account-indigo: var(--account-indigo);
+	--color-account-purple: var(--account-purple);
+	--color-account-pink: var(--account-pink);
+	--color-account-red: var(--account-red);
+	--color-account-orange: var(--account-orange);
+	--color-account-yellow: var(--account-yellow);
+
+	/* Spacing */
+	--spacing-page: var(--size-page);
+	--spacing-top: var(--size-top);
 }
 
 @layer base {

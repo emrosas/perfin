@@ -6,7 +6,7 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { useConvexClient } from 'convex-svelte';
-	import { api } from '@perfin/backend/convex/_generated/api.js';
+	import { api } from '@perfin/backend/convex/_generated/api';
 
 	import ShowPassword from '../components/icons/showPassword.svelte';
 	import Spinner from '../components/icons/spinner.svelte';
@@ -34,7 +34,7 @@
 					{
 						email,
 						password,
-						callbackURL: '/overview'
+						callbackURL: '/transactions'
 					},
 					{
 						onError: (ctx) => {
@@ -45,11 +45,11 @@
 				);
 			} else {
 				await authClient.signUp.email(
-					{ name, email, password, callbackURL: '/overview' },
+					{ name, email, password, callbackURL: '/transactions' },
 					{
 						onSuccess: (ctx) => {
 							client.mutation(api.auth.createCashAccount, { userId: ctx.data.user.id }).then(() => {
-								window.location.href = '/overview';
+								window.location.href = '/transactions';
 							});
 						},
 						onError: (ctx) => {

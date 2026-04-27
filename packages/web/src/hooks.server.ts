@@ -1,5 +1,5 @@
 import type { Handle } from '@sveltejs/kit';
-import { createAuth } from '@perfin/backend/convex/auth.ts';
+import { createAuth } from '@perfin/backend/convex/auth';
 import { getToken } from '@mmailaender/convex-better-auth-svelte/sveltekit';
 
 export const handle: Handle = async ({ event, resolve }) => {

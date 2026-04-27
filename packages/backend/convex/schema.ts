@@ -7,10 +7,11 @@ import { DataModel } from "./_generated/dataModel";
 export default defineSchema({
   transactions: defineTable({
     amount: v.number(),
-    category: v.union(v.literal("income"), v.literal("expense")),
+    category: v.union(v.literal("income"), v.literal("expense"), v.literal("transfer")),
     description: v.string(),
     date: v.string(),
     accountId: v.id("accounts"),
+    fromAccountId: v.optional(v.id("accounts")),
     userId: v.string(),
     expenseCategory: v.optional(v.string()),
   }).index("by_accountId", ["accountId"]),
