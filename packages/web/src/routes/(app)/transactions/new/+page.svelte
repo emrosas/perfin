@@ -133,7 +133,8 @@
 				{ value: 'transfer', label: 'Transfer', Icon: TransferIcon, color: 'text-[#84C600]' }
 			] as tab (tab.value)}
 				<label
-					class="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-3 text-base font-medium transition-all
+					class="flex flex-1 cursor-pointer items-center justify-center rounded-lg font-medium transition-all
+						gap-1.5 px-2 py-2 text-sm md:gap-2 md:px-4 md:py-3 md:text-base
 						{category === tab.value ? 'bg-card shadow-sm text-dark' : 'text-dark/40 hover:text-dark'}"
 				>
 					<input
@@ -143,7 +144,7 @@
 						bind:group={category}
 						class="sr-only"
 					/>
-					<tab.Icon class="size-6 {tab.color}" />
+					<tab.Icon class="size-4 md:size-6 {tab.color}" />
 					{tab.label}
 				</label>
 			{/each}
@@ -151,7 +152,7 @@
 	</fieldset>
 
 	<!-- Fields grid -->
-	<div class="grid grid-cols-2 gap-x-8 gap-y-6">
+	<div class="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-x-8 md:gap-y-6">
 		<!-- Title -->
 		<label class="flex flex-col gap-2">
 			<span class="text-dark text-sm font-medium">Title</span>

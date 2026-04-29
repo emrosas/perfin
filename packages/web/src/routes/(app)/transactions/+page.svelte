@@ -27,9 +27,7 @@
 		currentUserAccounts.data?.reduce((acc, a) => acc + a.balance, 0) ?? 0
 	);
 
-	const accountById = $derived(
-		new Map((currentUserAccounts.data ?? []).map((a) => [a._id, a]))
-	);
+	const accountById = $derived(new Map((currentUserAccounts.data ?? []).map((a) => [a._id, a])));
 
 	const balanceFmt = new Intl.NumberFormat('en-US', {
 		style: 'currency',
@@ -88,10 +86,10 @@
 	});
 </script>
 
-<div class="px-8 pt-16 pb-12">
+<div class="px-4 pt-16 pb-12 md:px-8">
 	<section class="pb-16">
-		<h2 class="text-dark text-2xl font-medium">Balance</h2>
-		<p class="text-dark mt-2 text-7xl font-bold tabular-nums">
+		<h2 class="text-2xl font-medium text-dark">Balance</h2>
+		<p class="mt-2 text-7xl font-bold text-dark tabular-nums">
 			{#if currentUserAccounts.isLoading}
 				<span class="opacity-30">$0</span>
 			{:else}
@@ -104,7 +102,7 @@
 				{#each distribution as seg (seg.id)}
 					<div class="flex flex-col gap-3" style="flex: {seg.fraction};">
 						<div class="h-2 w-full rounded-full" style="background-color: {seg.color};"></div>
-						<span class="text-dark truncate text-sm">{seg.name}</span>
+						<span class="truncate text-sm text-dark">{seg.name}</span>
 					</div>
 				{/each}
 			</div>
@@ -113,7 +111,7 @@
 
 	<section>
 		<div class="mb-6 flex items-center justify-between">
-			<h3 class="text-dark text-3xl font-bold">Transactions</h3>
+			<h3 class="text-3xl font-bold text-dark">Transactions</h3>
 			<div class="flex items-center gap-1">
 				{#each visibleMonths as month (month.key)}
 					<button
@@ -136,13 +134,11 @@
 				{/each}
 			</ul>
 		{:else if monthlyTransactions.data && monthlyTransactions.data.length > 0}
-			<ul class="flex flex-col gap-3">
+			<ul class="@container flex flex-col gap-3">
 				{#each monthlyTransactions.data as tx (tx?._id)}
 					{#if tx}
 						{@const toAccount = accountById.get(tx.accountId)}
-						{@const fromAccount = tx.fromAccountId
-							? accountById.get(tx.fromAccountId)
-							: undefined}
+						{@const fromAccount = tx.fromAccountId ? accountById.get(tx.fromAccountId) : undefined}
 						{@const accountLabel =
 							tx.category === 'transfer'
 								? `${fromAccount?.name ?? '?'} → ${toAccount?.name ?? '?'}`
@@ -166,7 +162,7 @@
 				{/each}
 			</ul>
 		{:else}
-			<p class="text-dark/40 py-12 text-center text-sm">No transactions this month.</p>
+			<p class="py-12 text-center text-sm text-dark/40">No transactions this month.</p>
 		{/if}
 	</section>
 </div>

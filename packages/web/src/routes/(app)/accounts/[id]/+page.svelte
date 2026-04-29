@@ -43,13 +43,20 @@
 {:else if !account}
 	<div class="px-8 pt-16">
 		<p class="text-dark/50">Account not found.</p>
-		<a href="/accounts" class="text-brand mt-4 inline-block text-sm underline">← Back</a>
+		<a href="/accounts" class="mt-4 inline-block text-sm text-brand underline">← Back</a>
 	</div>
 {:else}
-	<div class="px-8 pt-16 pb-12">
-		<a href="/accounts" class="text-dark/50 hover:text-dark mb-6 inline-flex items-center gap-1 transition-colors">
+	<div class="px-4 pt-16 pb-12 md:px-8">
+		<a
+			href="/accounts"
+			class="mb-6 inline-flex items-center gap-1 text-dark/50 transition-colors hover:text-dark"
+		>
 			<svg class="size-5" viewBox="0 0 24 24" fill="currentColor">
-				<path fill-rule="evenodd" d="M15.707 4.293a1 1 0 010 1.414L9.414 12l6.293 6.293a1 1 0 01-1.414 1.414l-7-7a1 1 0 010-1.414l7-7a1 1 0 011.414 0z" clip-rule="evenodd" />
+				<path
+					fill-rule="evenodd"
+					d="M15.707 4.293a1 1 0 010 1.414L9.414 12l6.293 6.293a1 1 0 01-1.414 1.414l-7-7a1 1 0 010-1.414l7-7a1 1 0 011.414 0z"
+					clip-rule="evenodd"
+				/>
 			</svg>
 			Back
 		</a>
@@ -68,18 +75,20 @@
 			</div>
 
 			<div class="flex flex-col items-center gap-1">
-				<p class="text-dark text-2xl font-bold">{account.name}</p>
-				<p class="text-dark text-5xl font-bold tabular-nums">
+				<p class="text-2xl font-bold text-dark">{account.name}</p>
+				<p class="text-5xl font-bold text-dark tabular-nums">
 					{balanceFmt.format(account.balance)}
 				</p>
 			</div>
 
 			<a
 				href="/accounts/{accountId}/edit"
-				class="bg-muted hover:bg-muted/80 flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-medium transition-colors"
+				class="flex items-center gap-2 rounded-xl bg-muted px-6 py-3 text-sm font-medium transition-colors hover:bg-muted/80"
 			>
 				<svg class="size-4" viewBox="0 0 20 20" fill="currentColor">
-					<path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+					<path
+						d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"
+					/>
 				</svg>
 				<span class="text-dark">Edit</span>
 			</a>
@@ -87,7 +96,7 @@
 
 		<!-- Transactions -->
 		<section>
-			<h2 class="text-dark mb-4 text-xl font-bold">Transactions</h2>
+			<h2 class="mb-4 text-xl font-bold text-dark">Transactions</h2>
 
 			{#if transactions.isLoading}
 				<ul class="flex flex-col gap-3">
@@ -96,7 +105,7 @@
 					{/each}
 				</ul>
 			{:else if !transactions.data || transactions.data.length === 0}
-				<p class="text-dark/40 py-12 text-center text-sm">No transactions for this account.</p>
+				<p class="py-12 text-center text-sm text-dark/40">No transactions for this account.</p>
 			{:else}
 				<ul class="flex flex-col gap-3">
 					{#each transactions.data as tx (tx?._id)}

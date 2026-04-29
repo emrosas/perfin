@@ -141,16 +141,16 @@
 	});
 </script>
 
-<div class="px-8 pt-16 pb-12">
+<div class="px-4 pt-16 pb-12 md:px-8">
 	<!-- Categories -->
 	<section class="mb-10">
 		<div class="mb-4 flex items-center justify-between">
-			<h2 class="text-dark text-2xl font-bold">Categories</h2>
+			<h2 class="text-2xl font-bold text-dark">Categories</h2>
 			<button
 				type="button"
 				onclick={openPicker}
 				disabled={unbudgetedCategories.length === 0}
-				class="text-brand disabled:text-brand/30 transition-colors"
+				class="text-brand transition-colors disabled:text-brand/30"
 				aria-label="Add category budget"
 			>
 				<svg class="size-7" viewBox="0 0 24 24" fill="currentColor">
@@ -170,11 +170,13 @@
 				{/each}
 			</ul>
 		{:else if categoriesWithBudgets.length === 0}
-			<p class="text-dark/40 py-6 text-center text-sm">
+			<p class="py-6 text-center text-sm text-dark/40">
 				No budgets set. Tap + to add a category budget.
 			</p>
 		{:else}
-			<ul class="bg-card flex flex-col divide-y divide-[rgba(146,141,191,0.1)] rounded-2xl border border-[rgba(146,141,191,0.12)] px-6">
+			<ul
+				class="flex flex-col divide-y divide-[rgba(146,141,191,0.1)] rounded-2xl border border-[rgba(146,141,191,0.12)] bg-card px-6"
+			>
 				{#each categoriesWithBudgets as cat (cat.key)}
 					{@const spent = spending.data?.[cat.key] ?? 0}
 					{@const budget = budgetMap[cat.key] ?? 0}
@@ -187,25 +189,21 @@
 							onclick={() => editExisting(cat.key)}
 							class="flex w-full items-center gap-3 py-4 text-left"
 						>
-							<div class="bg-muted flex size-11 shrink-0 items-center justify-center rounded-xl">
-								<Icon class="text-dark size-5" />
+							<div class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-muted">
+								<Icon class="size-5 text-dark" />
 							</div>
 							<div class="flex flex-1 flex-col gap-1.5">
 								<div class="flex items-center justify-between">
-									<span class="text-dark text-sm font-medium">{cat.label}</span>
+									<span class="text-sm font-medium text-dark">{cat.label}</span>
 									<span
-										class="font-mono text-sm tabular-nums {isOver
-											? 'text-red-500'
-											: 'text-dark'}"
+										class="font-mono text-sm tabular-nums {isOver ? 'text-red-500' : 'text-dark'}"
 									>
 										{balanceFmt.format(spent)}
 									</span>
 								</div>
-								<div class="bg-muted h-1 w-full overflow-hidden rounded-full">
+								<div class="h-1 w-full overflow-hidden rounded-full bg-muted">
 									<div
-										class="h-1 rounded-full transition-all {isOver
-											? 'bg-red-500'
-											: 'bg-brand'}"
+										class="h-1 rounded-full transition-all {isOver ? 'bg-red-500' : 'bg-brand'}"
 										style="width: {progress * 100}%"
 									></div>
 								</div>
@@ -230,7 +228,7 @@
 	<!-- Accounts -->
 	<section>
 		<div class="mb-4 flex items-center justify-between">
-			<h2 class="text-dark text-2xl font-bold">Accounts</h2>
+			<h2 class="text-2xl font-bold text-dark">Accounts</h2>
 			<a href="/accounts/new" class="text-brand transition-colors" aria-label="New account">
 				<svg class="size-7" viewBox="0 0 24 24" fill="currentColor">
 					<path
@@ -249,9 +247,7 @@
 				{/each}
 			</ul>
 		{:else if !currentUserAccounts.data || currentUserAccounts.data.length === 0}
-			<p class="text-dark/40 py-6 text-center text-sm">
-				No accounts yet. Tap + to create one.
-			</p>
+			<p class="py-6 text-center text-sm text-dark/40">No accounts yet. Tap + to create one.</p>
 		{:else}
 			<ul class="flex flex-col gap-3">
 				{#each currentUserAccounts.data as account (account._id)}
@@ -276,11 +272,13 @@
 	<div
 		role="presentation"
 		class="fixed inset-0 z-50 flex items-start justify-center bg-black/35 px-6 pt-32"
-		onclick={(e) => { if (e.target === e.currentTarget) closeDialog(); }}
+		onclick={(e) => {
+			if (e.target === e.currentTarget) closeDialog();
+		}}
 	>
 		{#if dialogStep === 'pick'}
-			<div class="bg-card w-full max-w-md rounded-2xl p-6 shadow-xl">
-				<h3 class="text-dark mb-4 text-center text-lg font-bold">Add Category Budget</h3>
+			<div class="w-full max-w-md rounded-2xl bg-card p-6 shadow-xl">
+				<h3 class="mb-4 text-center text-lg font-bold text-dark">Add Category Budget</h3>
 				<ul class="flex max-h-80 flex-col overflow-y-auto">
 					{#each unbudgetedCategories as cat (cat.key)}
 						{@const Icon = CATEGORY_ICONS[cat.icon]}
@@ -288,14 +286,18 @@
 							<button
 								type="button"
 								onclick={() => pickCategory(cat.key)}
-								class="hover:bg-muted flex w-full items-center gap-3 rounded-xl px-3 py-3.5 text-left transition-colors"
+								class="flex w-full items-center gap-3 rounded-xl px-3 py-3.5 text-left transition-colors hover:bg-muted"
 							>
-								<div class="bg-muted flex size-10 shrink-0 items-center justify-center rounded-xl">
-									<Icon class="text-dark size-5" />
+								<div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted">
+									<Icon class="size-5 text-dark" />
 								</div>
-								<span class="text-dark text-base font-medium">{cat.label}</span>
-								<svg class="text-dark/25 ml-auto size-5" viewBox="0 0 20 20" fill="currentColor">
-									<path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+								<span class="text-base font-medium text-dark">{cat.label}</span>
+								<svg class="ml-auto size-5 text-dark/25" viewBox="0 0 20 20" fill="currentColor">
+									<path
+										fill-rule="evenodd"
+										d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+										clip-rule="evenodd"
+									/>
 								</svg>
 							</button>
 						</li>
@@ -304,24 +306,24 @@
 			</div>
 		{:else if dialogStep === 'budget' && selectedCategoryDef}
 			{@const Icon = CATEGORY_ICONS[selectedCategoryDef.icon]}
-			<div class="bg-card w-full max-w-md rounded-2xl p-6 shadow-xl">
+			<div class="w-full max-w-md rounded-2xl bg-card p-6 shadow-xl">
 				<div class="mb-5 flex flex-col items-center gap-2">
-					<div class="bg-muted flex size-14 items-center justify-center rounded-2xl">
-						<Icon class="text-dark size-7" />
+					<div class="flex size-14 items-center justify-center rounded-2xl bg-muted">
+						<Icon class="size-7 text-dark" />
 					</div>
-					<p class="text-dark text-lg font-bold">{selectedCategoryDef.label}</p>
-					<p class="text-dark/50 text-sm">Set a monthly budget</p>
+					<p class="text-lg font-bold text-dark">{selectedCategoryDef.label}</p>
+					<p class="text-sm text-dark/50">Set a monthly budget</p>
 				</div>
 
 				<label class="mb-4 flex flex-col gap-2">
-					<span class="text-dark text-sm font-medium">Budget Amount</span>
+					<span class="text-sm font-medium text-dark">Budget Amount</span>
 					<input
 						type="number"
 						min="0"
 						step="0.01"
 						placeholder="0.00"
 						bind:value={budgetInput}
-						class="bg-muted text-dark placeholder:text-dark/30 w-full rounded-lg px-4 py-3 font-mono text-base outline-none focus:ring-2 focus:ring-brand/30"
+						class="w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
 					/>
 				</label>
 
@@ -333,7 +335,7 @@
 					type="button"
 					onclick={saveBudget}
 					disabled={saving}
-					class="bg-brand hover:bg-brand/90 flex w-full items-center justify-center rounded-xl py-3.5 text-base font-semibold text-white transition-colors disabled:opacity-60"
+					class="flex w-full items-center justify-center rounded-xl bg-brand py-3.5 text-base font-semibold text-white transition-colors hover:bg-brand/90 disabled:opacity-60"
 				>
 					{saving ? 'Saving…' : 'Save Budget'}
 				</button>
@@ -342,7 +344,7 @@
 					<button
 						type="button"
 						onclick={() => (dialogStep = 'pick')}
-						class="text-brand mt-3 w-full py-2 text-sm font-medium"
+						class="mt-3 w-full py-2 text-sm font-medium text-brand"
 					>
 						Choose a different category
 					</button>
