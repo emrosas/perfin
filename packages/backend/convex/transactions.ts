@@ -5,6 +5,7 @@ import { Id } from "./_generated/dataModel";
 import { v } from "convex/values";
 import { authComponent } from "./auth";
 import type { User } from "better-auth";
+import { normalizeAmount, type TransactionCategory } from "@perfin/shared";
 
 export const getById = query({
   args: { id: v.id("transactions") },
@@ -114,7 +115,7 @@ async function createTransaction(
       throw new Error("Account not found");
     }
 
-    const normalizedAmount = args.category === "income" ? Math.abs(args.amount) : -Math.abs(args.amount);
+    const normalizedAmount = normalizeAmount(args.amount, args.category);
 
     const insertDoc: any = {
       amount: normalizedAmount,
@@ -241,8 +242,8 @@ export const updateTransaction = mutation({
     // Remove old aggregate entry
     await aggregateMonthlyTransactionsByUser.deleteIfExists(ctx, existing);
 
-    // Compute new normalized amount
-    const normalizedAmount = category === "income" ? Math.abs(amount) : -Math.abs(amount);
+    // updateTransaction only handles income/expense; transfers use updateTransfer
+    const normalizedAmount = normalizeAmount(amount, category as Exclude<TransactionCategory, "transfer">);
 
     // Apply new transaction's effect on (possibly different) account
     const newAccount = existing.accountId === accountId

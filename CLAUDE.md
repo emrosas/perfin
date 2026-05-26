@@ -55,3 +55,17 @@ bun run dev   # convex dev (local Convex server)
 ### Styling
 - Tailwind CSS v4 (configured via `@tailwindcss/vite` plugin, not a config file).
 - UI primitives from `bits-ui`; icons from `lucide-svelte`.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues (`github.com/emrosas/perfin`). See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default canonical label strings (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context — one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.

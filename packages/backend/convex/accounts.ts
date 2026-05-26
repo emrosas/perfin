@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { authComponent } from "./auth";
 import { aggregateMonthlyTransactionsByUser } from "./schema";
+import { normalizeBalanceDifference } from "@perfin/shared";
 
 export const getCurrentUserAccounts = query({
   handler: async (ctx) => {
@@ -70,7 +71,7 @@ export const updateAccount = mutation({
       const difference = balance - account.balance;
       const today = new Date().toISOString().split("T")[0];
       const category = difference > 0 ? "income" : "expense";
-      const normalizedAmount = category === "income" ? Math.abs(difference) : -Math.abs(difference);
+      const normalizedAmount = normalizeBalanceDifference(difference);
 
       const txId = await ctx.db.insert("transactions", {
         amount: normalizedAmount,
