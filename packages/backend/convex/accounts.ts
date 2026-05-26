@@ -1,8 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { authComponent } from "./auth";
-import { aggregateMonthlyTransactionsByUser } from "./schema";
-import { normalizeBalanceDifference } from "@perfin/shared";
+import { createTransaction } from "./transactions";
 
 export const getCurrentUserAccounts = query({
   handler: async (ctx) => {
@@ -66,26 +65,20 @@ export const updateAccount = mutation({
     if (type !== undefined) patch.type = type;
     if (color !== undefined) patch.color = color;
 
-    // Handle balance change — create a balance-adjustment transaction
+    // Handle balance change — createTransaction owns the insert, balance patch, and aggregate sync
     if (balance !== undefined && balance !== account.balance) {
       const difference = balance - account.balance;
       const today = new Date().toISOString().split("T")[0];
       const category = difference > 0 ? "income" : "expense";
-      const normalizedAmount = normalizeBalanceDifference(difference);
 
-      const txId = await ctx.db.insert("transactions", {
-        amount: normalizedAmount,
-        category: category as "income" | "expense",
+      await createTransaction(ctx, {
+        amount: difference,
+        category,
         description: "Balance adjustment",
         date: today,
         accountId: id,
         userId: user._id,
       });
-
-      const txDoc = await ctx.db.get(txId);
-      await aggregateMonthlyTransactionsByUser.insert(ctx, txDoc!);
-
-      patch.balance = balance;
     }
 
     if (Object.keys(patch).length > 0) {
