@@ -5,8 +5,32 @@ A personal finance management app for tracking accounts, transactions, and budge
 ## Language
 
 **Account**:
-A financial account owned by the user (e.g. a bank account, credit card, or cash wallet). Holds a running balance.
+A financial account owned by the user. Has one of three types: `debit`, `credit`, or `physical`. Holds a running balance.
 _Avoid_: Wallet, card, asset
+
+**DebitAccount**:
+An Account of type `debit`. Represents a bank or card account holding money the user owns. Balance is always positive (or zero).
+_Avoid_: Card (too generic)
+
+**CreditAccount**:
+An Account of type `credit`. Represents a credit card. Balance is negative when the user carries debt (money owed to the card issuer). Carries debt-specific fields: APR, PaymentDueDay, and InterestTaxRate.
+_Avoid_: Card (too generic), debt account
+
+**PhysicalAccount**:
+An Account of type `physical`. Represents cash or any physical money the user holds.
+_Avoid_: Wallet, cash account
+
+**APR** (Annual Percentage Rate):
+The yearly interest rate on a CreditAccount, expressed as a percentage (e.g. `24.5` for 24.5%). Used to pre-fill interest charge calculations as `APR ÷ 12 × |balance|`.
+_Avoid_: Interest rate (too vague), monthly rate
+
+**PaymentDueDay**:
+The day of the month (1–31) on which a CreditAccount's payment is due. Used to surface upcoming payment warnings.
+_Avoid_: Due date (implies a full date, not just a day)
+
+**InterestTaxRate**:
+An optional per-CreditAccount decimal representing local tax applied on top of interest charges (e.g. `0.16` for Mexico's 16% IVA). Stored on the account so users with cards in multiple countries can set each card independently.
+_Avoid_: VAT, tax rate (too generic)
 
 **Transaction**:
 A single financial event recorded against one or more accounts. Every transaction belongs to exactly one category.
@@ -44,9 +68,21 @@ _Avoid_: Manual entry, correction
 A monthly spending limit set by the user for a given ExpenseCategory.
 _Avoid_: Limit, cap, allowance
 
+**RecurringPayment**:
+A user-defined template for an expense that repeats monthly on a fixed day. Stores the expected amount, the target Account, an optional ExpenseCategory, and the next due date. When confirmed by the user, it creates an Expense Transaction dated the scheduled due date and advances the next due date by one month. When skipped, the next due date advances without creating a Transaction.
+_Avoid_: Subscription (too narrow — covers bills and rent too), schedule, recurring expense
+
+**DueRecurringPayment**:
+A RecurringPayment whose next due date is today or in the past. Computed on read — not a stored state. Surfaces in the Wallet page as a stacked card prompt for the user to confirm or skip.
+_Avoid_: Pending payment (ambiguous with future payment intent)
+
 ## Relationships
 
 - An **Account** holds a **Balance** and has many **Transactions**
+- A **CreditAccount** carries **APR**, **PaymentDueDay**, and optionally **InterestTaxRate** — no other account type has these fields
+- A **CreditAccount**'s negative **Balance** represents the amount currently owed to the card issuer
+- A **RecurringPayment** targets one **Account** and, when confirmed, produces one **Transaction**
+- A **DueRecurringPayment** is a derived view of a **RecurringPayment** — it is not stored separately
 - A **Transaction** belongs to exactly one **Account** (or two, in the case of a **Transfer**)
 - A **Transfer** has a source **Account** (`fromAccountId`) and a destination **Account** (`accountId`)
 - An **Expense** transaction may have one **ExpenseCategory**

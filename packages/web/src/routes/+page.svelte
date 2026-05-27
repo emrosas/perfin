@@ -75,7 +75,7 @@
 	}
 </script>
 
-<div class="p-6 pt-24">
+<div class="mx-auto w-full max-w-xl p-6 pt-24">
 	<div class="mb-12 flex flex-col items-center">
 		<img src={logo} alt="Perfin Logo" class="h-auto w-24" />
 		<h1 class="mt-3 mb-2 text-6xl font-bold">Perfin</h1>

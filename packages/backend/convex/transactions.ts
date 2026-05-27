@@ -53,6 +53,32 @@ export const listMonthlyTransactions = query({
   },
 });
 
+export const getMonthlySummary = query({
+  args: {
+    monthStart: v.string(),
+    monthEnd: v.string(),
+  },
+  handler: async (ctx, { monthStart, monthEnd }) => {
+    const user = await requireAuth(ctx);
+
+    const rows = await ctx.db
+      .query("transactions")
+      .withIndex("by_user_date", (q) =>
+        q.eq("userId", user._id).gte("date", monthStart).lte("date", monthEnd)
+      )
+      .collect();
+
+    let monthlyIncome = 0;
+    let monthlyExpense = 0;
+    for (const tx of rows) {
+      if (tx.isAdjustment) continue;
+      if (tx.category === "income") monthlyIncome += tx.amount;
+      else if (tx.category === "expense") monthlyExpense += Math.abs(tx.amount);
+    }
+    return { monthlyIncome, monthlyExpense };
+  },
+});
+
 // ─── Internal helpers ────────────────────────────────────────────────────────
 //
 // These own the full lifecycle of each operation: db write, balance patch, and
@@ -74,6 +100,7 @@ export async function createTransaction(
     accountId: Id<"accounts">;
     userId: string;
     expenseCategory?: string;
+    isAdjustment?: boolean;
   }
 ): Promise<Id<"transactions">> {
   if (args.amount === 0) throw new Error("Amount must be greater than zero");
@@ -92,6 +119,7 @@ export async function createTransaction(
     userId: args.userId,
   };
   if (args.expenseCategory) insertDoc.expenseCategory = args.expenseCategory;
+  if (args.isAdjustment) insertDoc.isAdjustment = true;
 
   const id = await ctx.db.insert("transactions", insertDoc);
   await ctx.db.patch("accounts", args.accountId, { balance: account.balance + normalizedAmount });
@@ -276,6 +304,7 @@ export const updateAccountBalance = mutation({
       date: today,
       accountId: id,
       userId: user._id,
+      isAdjustment: true,
     });
   },
 });

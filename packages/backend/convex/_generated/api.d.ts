@@ -12,6 +12,7 @@ import type * as accounts from "../accounts.js";
 import type * as auth from "../auth.js";
 import type * as categoryBudgets from "../categoryBudgets.js";
 import type * as http from "../http.js";
+import type * as requireAuth from "../requireAuth.js";
 import type * as transactions from "../transactions.js";
 
 import type {
@@ -25,6 +26,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   categoryBudgets: typeof categoryBudgets;
   http: typeof http;
+  requireAuth: typeof requireAuth;
   transactions: typeof transactions;
 }>;
 

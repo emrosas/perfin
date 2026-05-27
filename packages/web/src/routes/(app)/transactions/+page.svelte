@@ -4,6 +4,9 @@
 	import { getUserAccounts } from '../../../context';
 	import TransactionRow from '$components/transactionRow.svelte';
 	import { getCategoryLabel } from '$lib/categories';
+	import { formatAbbreviatedAmount } from '$lib/formatAmount';
+	import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
+	import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
 
 	const currentUserAccounts = getUserAccounts();
 
@@ -19,6 +22,11 @@
 	const range = $derived(getMonthRange(selectedMonth.getFullYear(), selectedMonth.getMonth()));
 
 	const monthlyTransactions = useQuery(api.transactions.listMonthlyTransactions, () => ({
+		monthStart: range.monthStart,
+		monthEnd: range.monthEnd
+	}));
+
+	const monthlySummary = useQuery(api.transactions.getMonthlySummary, () => ({
 		monthStart: range.monthStart,
 		monthEnd: range.monthEnd
 	}));
@@ -89,13 +97,33 @@
 <div class="px-4 pt-16 pb-12 md:px-8">
 	<section class="pb-16">
 		<h2 class="text-2xl font-medium text-dark">Balance</h2>
-		<p class="mt-2 text-7xl font-bold text-dark tabular-nums">
-			{#if currentUserAccounts.isLoading}
-				<span class="opacity-30">$0</span>
-			{:else}
-				{balanceFmt.format(totalBalance)}
-			{/if}
-		</p>
+		<div class="mt-2 flex items-end justify-between gap-4">
+			<p class="text-7xl font-bold text-dark tabular-nums">
+				{#if currentUserAccounts.isLoading}
+					<span class="opacity-30">$0</span>
+				{:else}
+					{balanceFmt.format(totalBalance)}
+				{/if}
+			</p>
+
+			<div class="flex shrink-0 flex-col gap-1 pb-2 text-sm font-medium tabular-nums">
+				{#if monthlySummary.isLoading}
+					<div class="skeleton h-4 w-16 rounded"></div>
+					<div class="skeleton h-4 w-16 rounded"></div>
+				{:else}
+					{@const income = monthlySummary.data?.monthlyIncome ?? 0}
+					{@const expense = monthlySummary.data?.monthlyExpense ?? 0}
+					<div class="flex items-center gap-1 {income > 0 ? 'text-emerald-500' : 'text-dark/30'}">
+						<ArrowUpIcon class="size-3.5" />
+						<span>{formatAbbreviatedAmount(income)}</span>
+					</div>
+					<div class="flex items-center gap-1 {expense > 0 ? 'text-[#FF4540]' : 'text-dark/30'}">
+						<ArrowDownIcon class="size-3.5" />
+						<span>{formatAbbreviatedAmount(expense)}</span>
+					</div>
+				{/if}
+			</div>
+		</div>
 
 		{#if distribution.length > 0}
 			<div class="mt-8 flex w-full gap-1">

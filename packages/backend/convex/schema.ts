@@ -14,7 +14,10 @@ export default defineSchema({
     fromAccountId: v.optional(v.id("accounts")),
     userId: v.string(),
     expenseCategory: v.optional(v.string()),
-  }).index("by_accountId", ["accountId"]),
+    isAdjustment: v.optional(v.boolean()),
+  })
+    .index("by_accountId", ["accountId"])
+    .index("by_user_date", ["userId", "date"]),
   accounts: defineTable({
     name: v.string(),
     balance: v.number(),
