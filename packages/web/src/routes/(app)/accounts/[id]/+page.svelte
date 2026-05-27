@@ -16,8 +16,9 @@
 
 	const account = $derived(currentUserAccounts.data?.find((a) => a._id === accountId));
 	const color = $derived(account?.color ?? '#3E3BF1');
-	const type = $derived(account?.type ?? 'card');
+	const type = $derived(account?.type ?? 'debit');
 	const cardStyle = $derived(getCardStyleFromHex(color));
+	const isCredit = $derived(type === 'credit');
 
 	const transactions = useQuery(api.transactions.listByAccount, () => ({ accountId }));
 
@@ -33,6 +34,16 @@
 		month: 'short',
 		year: 'numeric',
 		timeZone: 'UTC'
+	});
+
+	const nextPaymentLabel = $derived(() => {
+		const acc = account as any;
+		if (!acc?.paymentDueDay) return null;
+		const today = new Date();
+		const day = acc.paymentDueDay as number;
+		const thisMonth = new Date(today.getFullYear(), today.getMonth(), day);
+		const target = thisMonth > today ? thisMonth : new Date(today.getFullYear(), today.getMonth() + 1, day);
+		return target.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
 	});
 </script>
 
@@ -79,6 +90,13 @@
 				<p class="text-5xl font-bold text-dark tabular-nums">
 					{balanceFmt.format(account.balance)}
 				</p>
+				{#if isCredit}
+					<p class="text-sm text-dark/50">
+						{account.balance < 0
+							? `${balanceFmt.format(Math.abs(account.balance))} owed`
+							: 'No balance owed'}
+					</p>
+				{/if}
 			</div>
 
 			<a
@@ -93,6 +111,52 @@
 				<span class="text-dark">Edit</span>
 			</a>
 		</div>
+
+		<!-- Credit card debt summary -->
+		{#if isCredit}
+			{@const acc = account as any}
+			<section class="mb-6 rounded-2xl border border-[rgba(146,141,191,0.12)] bg-card p-5">
+				<div class="mb-4 flex items-center justify-between">
+					<h2 class="text-base font-semibold text-dark">Debt Summary</h2>
+					<a
+						href="/accounts/{accountId}/apply-interest"
+						class="rounded-lg bg-brand/10 px-3 py-1.5 text-xs font-semibold text-brand transition-colors hover:bg-brand/20"
+					>
+						Apply Interest
+					</a>
+				</div>
+				<div class="grid grid-cols-2 gap-4">
+					{#if acc.creditLimit}
+						<div>
+							<p class="text-xs text-dark/50">Credit Limit</p>
+							<p class="font-mono text-base font-semibold text-dark">{balanceFmt.format(acc.creditLimit)}</p>
+						</div>
+						<div>
+							<p class="text-xs text-dark/50">Available Credit</p>
+							<p class="font-mono text-base font-semibold text-dark">{balanceFmt.format(acc.creditLimit - Math.abs(account.balance))}</p>
+						</div>
+					{/if}
+					{#if acc.apr}
+						<div>
+							<p class="text-xs text-dark/50">APR</p>
+							<p class="font-mono text-base font-semibold text-dark">{acc.apr}%</p>
+						</div>
+					{/if}
+					{#if acc.paymentDueDay}
+						<div>
+							<p class="text-xs text-dark/50">Next Payment Due</p>
+							<p class="text-base font-semibold text-dark">{nextPaymentLabel()}</p>
+						</div>
+					{/if}
+					{#if acc.interestTaxRate}
+						<div>
+							<p class="text-xs text-dark/50">Interest Tax Rate</p>
+							<p class="font-mono text-base font-semibold text-dark">{(acc.interestTaxRate * 100).toFixed(0)}%</p>
+						</div>
+					{/if}
+				</div>
+			</section>
+		{/if}
 
 		<!-- Transactions -->
 		<section>

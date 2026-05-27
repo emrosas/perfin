@@ -12,7 +12,7 @@ export const ACCENT_COLORS = [
 ] as const;
 
 export const DEFAULT_ACCOUNT_COLOR = "#3E3BF1";
-export const DEFAULT_ACCOUNT_TYPE: "card" | "physical" = "card";
+export const DEFAULT_ACCOUNT_TYPE: "debit" | "credit" | "physical" = "debit";
 
 /**
  * Derive card styling from any hex accent color.

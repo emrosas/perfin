@@ -18,8 +18,12 @@
 
 	let name = $state('');
 	let balance = $state<number | ''>('');
-	let type = $state<'card' | 'physical'>(DEFAULT_ACCOUNT_TYPE);
+	let type = $state<'debit' | 'credit' | 'physical'>(DEFAULT_ACCOUNT_TYPE);
 	let color = $state(DEFAULT_ACCOUNT_COLOR);
+	let apr = $state<number | ''>('');
+	let paymentDueDay = $state<number | ''>('');
+	let interestTaxRatePct = $state<number | ''>('');
+	let creditLimit = $state<number | ''>('');
 	let initialised = $state(false);
 	let status = $state<'idle' | 'loading' | 'error'>('idle');
 	let errorMsg = $state('');
@@ -28,9 +32,16 @@
 		const acc = existingAccount;
 		if (acc && !initialised) {
 			name = acc.name;
-			balance = acc.balance;
-			type = (acc.type as 'card' | 'physical') ?? DEFAULT_ACCOUNT_TYPE;
+			// Credit accounts store balance as negative; show the absolute value as "amount owed"
+			balance = acc.type === 'credit' || acc.type === 'card' ? Math.abs(acc.balance) : acc.balance;
+			const rawType = acc.type ?? DEFAULT_ACCOUNT_TYPE;
+			type = (rawType === 'card' ? 'debit' : rawType) as 'debit' | 'credit' | 'physical';
 			color = acc.color ?? DEFAULT_ACCOUNT_COLOR;
+			apr = (acc as any).apr ?? '';
+			paymentDueDay = (acc as any).paymentDueDay ?? '';
+			const storedRate = (acc as any).interestTaxRate;
+			interestTaxRatePct = storedRate !== undefined ? storedRate * 100 : '';
+			creditLimit = (acc as any).creditLimit ?? '';
 			initialised = true;
 		}
 	});
@@ -46,15 +57,37 @@
 			errorMsg = 'Please enter an account name';
 			return;
 		}
+		if (type === 'credit') {
+			const aprVal = typeof apr === 'number' ? apr : parseFloat(String(apr));
+			if (isNaN(aprVal) || aprVal <= 0) {
+				errorMsg = 'Please enter a valid APR';
+				return;
+			}
+			const dueDay = typeof paymentDueDay === 'number' ? paymentDueDay : parseInt(String(paymentDueDay));
+			if (isNaN(dueDay) || dueDay < 1 || dueDay > 31) {
+				errorMsg = 'Please enter a payment due day between 1 and 31';
+				return;
+			}
+		}
 		status = 'loading';
 		errorMsg = '';
 		try {
+			const aprVal = typeof apr === 'number' ? apr : parseFloat(String(apr));
+			const dueDayVal = typeof paymentDueDay === 'number' ? paymentDueDay : parseInt(String(paymentDueDay));
+			const taxPct = typeof interestTaxRatePct === 'number' ? interestTaxRatePct : parseFloat(String(interestTaxRatePct));
+			const limitVal = typeof creditLimit === 'number' ? creditLimit : parseFloat(String(creditLimit));
+
 			await client.mutation(api.accounts.updateAccount, {
 				id: accountId,
 				name: name.trim(),
-				balance: parsedBalance,
+				// For credit accounts, pass the absolute value — backend stores it as negative
+				balance: type === 'credit' ? Math.abs(parsedBalance) : parsedBalance,
 				type,
-				color
+				color,
+				apr: type === 'credit' && !isNaN(aprVal) ? aprVal : undefined,
+				paymentDueDay: type === 'credit' && !isNaN(dueDayVal) ? dueDayVal : undefined,
+				interestTaxRate: type === 'credit' && !isNaN(taxPct) && taxPct > 0 ? taxPct / 100 : undefined,
+				creditLimit: type === 'credit' && !isNaN(limitVal) && limitVal > 0 ? limitVal : undefined,
 			});
 			goto(`/accounts/${accountId}`);
 		} catch (err) {
@@ -107,11 +140,19 @@
 					<div class="flex rounded-xl bg-muted p-1">
 						<label
 							class="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-3 text-base font-medium transition-all
-								{type === 'card' ? 'bg-card text-dark shadow-sm' : 'text-dark/40 hover:text-dark'}"
+								{type === 'debit' ? 'bg-card text-dark shadow-sm' : 'text-dark/40 hover:text-dark'}"
 						>
-							<input type="radio" name="type" value="card" bind:group={type} class="sr-only" />
-							<CardIcon class="size-5 {type === 'card' ? 'text-brand' : ''}" />
-							Card
+							<input type="radio" name="type" value="debit" bind:group={type} class="sr-only" />
+							<CardIcon class="size-5 {type === 'debit' ? 'text-brand' : ''}" />
+							Debit
+						</label>
+						<label
+							class="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-3 text-base font-medium transition-all
+								{type === 'credit' ? 'bg-card text-dark shadow-sm' : 'text-dark/40 hover:text-dark'}"
+						>
+							<input type="radio" name="type" value="credit" bind:group={type} class="sr-only" />
+							<CardIcon class="size-5 {type === 'credit' ? 'text-brand' : ''}" />
+							Credit
 						</label>
 						<label
 							class="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-3 text-base font-medium transition-all
@@ -119,10 +160,66 @@
 						>
 							<input type="radio" name="type" value="physical" bind:group={type} class="sr-only" />
 							<BagIcon class="size-5 {type === 'physical' ? 'text-brand' : ''}" />
-							Physical
+							Cash
 						</label>
 					</div>
 				</fieldset>
+
+				<!-- Credit card debt fields -->
+				{#if type === 'credit'}
+					<div class="flex flex-col gap-4 rounded-xl bg-muted/60 p-4">
+						<p class="text-sm font-medium text-dark">Credit Card Details</p>
+
+						<label class="flex flex-col gap-2">
+							<span class="text-sm text-dark/70">APR (%)</span>
+							<input
+								type="number"
+								min="0"
+								step="0.01"
+								placeholder="e.g. 24.5"
+								bind:value={apr}
+								class="w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
+							/>
+						</label>
+
+						<label class="flex flex-col gap-2">
+							<span class="text-sm text-dark/70">Payment due day</span>
+							<input
+								type="number"
+								min="1"
+								max="31"
+								step="1"
+								placeholder="e.g. 15"
+								bind:value={paymentDueDay}
+								class="w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
+							/>
+						</label>
+
+						<label class="flex flex-col gap-2">
+							<span class="text-sm text-dark/70">Interest tax rate (%) <span class="text-dark/40">optional</span></span>
+							<input
+								type="number"
+								min="0"
+								step="0.01"
+								placeholder="e.g. 16 for Mexico IVA"
+								bind:value={interestTaxRatePct}
+								class="w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
+							/>
+						</label>
+
+						<label class="flex flex-col gap-2">
+							<span class="text-sm text-dark/70">Credit limit <span class="text-dark/40">optional</span></span>
+							<input
+								type="number"
+								min="0"
+								step="0.01"
+								placeholder="e.g. 30000"
+								bind:value={creditLimit}
+								class="w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
+							/>
+						</label>
+					</div>
+				{/if}
 
 				<!-- Color picker -->
 				<div>
@@ -165,7 +262,9 @@
 
 				<!-- Balance -->
 				<label class="flex flex-col gap-2">
-					<span class="text-sm font-medium text-dark">Balance</span>
+					<span class="text-sm font-medium text-dark">
+						{type === 'credit' ? 'Current Balance Owed' : 'Balance'}
+					</span>
 					<input
 						type="number"
 						min="0"

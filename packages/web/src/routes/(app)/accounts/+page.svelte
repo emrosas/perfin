@@ -3,6 +3,7 @@
 	import { api } from '@perfin/backend/convex/_generated/api';
 	import { getUserAccounts } from '../../../context';
 	import AccountCard from '$components/accountCard.svelte';
+	import DueRecurringPaymentStack from '$components/dueRecurringPaymentStack.svelte';
 	import { EXPENSE_CATEGORIES, CATEGORY_MAP } from '$lib/categories';
 	import UtensilsIcon from '@lucide/svelte/icons/utensils';
 	import ZapIcon from '@lucide/svelte/icons/zap';
@@ -139,9 +140,50 @@
 		minimumFractionDigits: 2,
 		maximumFractionDigits: 2
 	});
+
+	const recurringPayments = useQuery(api.recurringPayments.list);
+
+	const today = new Date().toISOString().split('T')[0];
+
+	const duePayments = $derived(
+		(recurringPayments.data ?? []).filter((rp) => rp.nextDueDate <= today)
+	);
+
+	const amountFmt = new Intl.NumberFormat('en-US', {
+		style: 'currency',
+		currency: 'USD',
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2
+	});
+
+	const dateFmt = new Intl.DateTimeFormat('en-US', {
+		month: 'short',
+		day: 'numeric',
+		timeZone: 'UTC'
+	});
+
+	let deletingId = $state<string | null>(null);
+
+	async function deleteRecurring(id: string) {
+		if (deletingId) return;
+		deletingId = id;
+		try {
+			await client.mutation(api.recurringPayments.remove, { id: id as any });
+		} finally {
+			deletingId = null;
+		}
+	}
 </script>
 
 <div class="px-4 pt-16 pb-12 md:px-8">
+	<!-- Due recurring payment stack -->
+	{#if duePayments.length > 0}
+		<DueRecurringPaymentStack
+			{duePayments}
+			accounts={currentUserAccounts.data ?? []}
+		/>
+	{/if}
+
 	<!-- Categories -->
 	<section class="mb-10">
 		<div class="mb-4 flex items-center justify-between">
@@ -225,6 +267,58 @@
 		{/if}
 	</section>
 
+	<!-- Recurring Payments -->
+	<section class="mb-10">
+		<div class="mb-4 flex items-center justify-between">
+			<h2 class="text-2xl font-bold text-dark">Recurring</h2>
+			<a href="/recurring/new" class="text-brand transition-colors" aria-label="New recurring payment">
+				<svg class="size-7" viewBox="0 0 24 24" fill="currentColor">
+					<path
+						fill-rule="evenodd"
+						d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 11h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H8a1 1 0 110-2h3V8a1 1 0 112 0v3z"
+						clip-rule="evenodd"
+					/>
+				</svg>
+			</a>
+		</div>
+
+		{#if recurringPayments.isLoading}
+			<ul class="flex flex-col gap-3">
+				{#each Array(2) as _, i (i)}
+					<li class="skeleton h-16 w-full rounded-2xl"></li>
+				{/each}
+			</ul>
+		{:else if !recurringPayments.data || recurringPayments.data.length === 0}
+			<p class="py-6 text-center text-sm text-dark/40">No recurring payments. Tap + to add one.</p>
+		{:else}
+			<ul class="flex flex-col divide-y divide-[rgba(146,141,191,0.1)] rounded-2xl border border-[rgba(146,141,191,0.12)] bg-card px-6">
+				{#each recurringPayments.data as rp (rp._id)}
+					{@const acct = currentUserAccounts.data?.find((a) => a._id === rp.accountId)}
+					<li class="flex items-center gap-3 py-4">
+						<div class="flex flex-1 flex-col gap-0.5">
+							<p class="text-sm font-medium text-dark">{rp.name}</p>
+							<p class="text-xs text-dark/50">
+								{acct?.name ?? '—'} · Day {rp.dayOfMonth} of each month
+							</p>
+						</div>
+						<p class="font-mono text-sm font-semibold tabular-nums text-dark">
+							{amountFmt.format(rp.amount)}
+						</p>
+						<a
+							href="/recurring/{rp._id}/edit"
+							aria-label="Edit {rp.name}"
+							class="text-dark/30 transition-colors hover:text-dark"
+						>
+							<svg class="size-4" viewBox="0 0 20 20" fill="currentColor">
+								<path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+							</svg>
+						</a>
+					</li>
+				{/each}
+			</ul>
+		{/if}
+	</section>
+
 	<!-- Accounts -->
 	<section>
 		<div class="mb-4 flex items-center justify-between">
@@ -256,7 +350,7 @@
 							name={account.name}
 							balance={account.balance}
 							color={account.color ?? '#3E3BF1'}
-							type={account.type ?? 'card'}
+							type={account.type ?? 'debit'}
 							href="/accounts/{account._id}"
 						/>
 					</li>

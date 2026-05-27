@@ -12,6 +12,7 @@ import type * as accounts from "../accounts.js";
 import type * as auth from "../auth.js";
 import type * as categoryBudgets from "../categoryBudgets.js";
 import type * as http from "../http.js";
+import type * as recurringPayments from "../recurringPayments.js";
 import type * as requireAuth from "../requireAuth.js";
 import type * as transactions from "../transactions.js";
 
@@ -26,6 +27,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   categoryBudgets: typeof categoryBudgets;
   http: typeof http;
+  recurringPayments: typeof recurringPayments;
   requireAuth: typeof requireAuth;
   transactions: typeof transactions;
 }>;

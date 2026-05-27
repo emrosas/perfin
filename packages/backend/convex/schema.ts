@@ -22,8 +22,26 @@ export default defineSchema({
     name: v.string(),
     balance: v.number(),
     userId: v.string(),
-    type: v.optional(v.union(v.literal("card"), v.literal("physical"))),
+    type: v.optional(v.union(
+      v.literal("debit"),
+      v.literal("credit"),
+      v.literal("physical"),
+      v.literal("card"), // migration compat — treated as "debit"
+    )),
     color: v.optional(v.string()),
+    apr: v.optional(v.number()),
+    paymentDueDay: v.optional(v.number()),
+    interestTaxRate: v.optional(v.number()),
+    creditLimit: v.optional(v.number()),
+  }).index("by_userId", ["userId"]),
+  recurringPayments: defineTable({
+    name: v.string(),
+    amount: v.number(),
+    accountId: v.id("accounts"),
+    expenseCategory: v.optional(v.string()),
+    dayOfMonth: v.number(),
+    nextDueDate: v.string(),
+    userId: v.string(),
   }).index("by_userId", ["userId"]),
   categoryBudgets: defineTable({
     userId: v.string(),

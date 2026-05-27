@@ -32,7 +32,9 @@
 	}));
 
 	const totalBalance = $derived(
-		currentUserAccounts.data?.reduce((acc, a) => acc + a.balance, 0) ?? 0
+		currentUserAccounts.data
+			?.filter((a) => a.type !== 'credit')
+			.reduce((acc, a) => acc + a.balance, 0) ?? 0
 	);
 
 	const accountById = $derived(new Map((currentUserAccounts.data ?? []).map((a) => [a._id, a])));
@@ -83,7 +85,7 @@
 		const accounts = currentUserAccounts.data ?? [];
 		if (totalBalance <= 0) return [];
 		return [...accounts]
-			.filter((a) => a.balance > 0)
+			.filter((a) => a.type !== 'credit' && a.balance > 0)
 			.sort((a, b) => a.balance - b.balance)
 			.map((a) => ({
 				id: a._id,

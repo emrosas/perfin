@@ -7,11 +7,11 @@
 		name: string;
 		balance: number;
 		color?: string;
-		type?: 'card' | 'physical';
+		type?: 'debit' | 'credit' | 'physical' | 'card';
 		href?: string;
 	};
 
-	let { name, balance, color = '#3E3BF1', type = 'card', href }: Props = $props();
+	let { name, balance, color = '#3E3BF1', type = 'debit', href }: Props = $props();
 
 	const style = $derived(getCardStyleFromHex(color));
 
