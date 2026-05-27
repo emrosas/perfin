@@ -1,6 +1,8 @@
 import { v } from "convex/values";
+import { ConvexError } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { authComponent } from "./auth";
+import { requireAuth } from "./requireAuth";
 import { createTransaction } from "./transactions";
 
 export const getCurrentUserAccounts = query({
@@ -12,13 +14,14 @@ export const getCurrentUserAccounts = query({
       return null;
     }
 
-    if (!user) {
-      return null;
-    }
+    if (!user) return null;
 
-    return await ctx.db.query("accounts").withIndex("by_userId", (q) => q.eq("userId", user._id)).collect()
-  }
-})
+    return await ctx.db
+      .query("accounts")
+      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .collect();
+  },
+});
 
 export const createAccount = mutation({
   args: {
@@ -28,7 +31,7 @@ export const createAccount = mutation({
     color: v.optional(v.string()),
   },
   handler: async (ctx, { name, balance, type, color }) => {
-    const user = await authComponent.getAuthUser(ctx)
+    const user = await requireAuth(ctx);
 
     return await ctx.db.insert("accounts", {
       userId: user._id,
@@ -36,9 +39,9 @@ export const createAccount = mutation({
       balance,
       type: type ?? "card",
       color: color ?? "#3E3BF1",
-    })
-  }
-})
+    });
+  },
+});
 
 export const updateAccount = mutation({
   args: {
@@ -49,18 +52,12 @@ export const updateAccount = mutation({
     balance: v.optional(v.number()),
   },
   handler: async (ctx, { id, name, type, color, balance }) => {
-    const user = await authComponent.getAuthUser(ctx);
+    const user = await requireAuth(ctx);
     const account = await ctx.db.get(id);
+    if (!account) throw new Error("Account not found");
+    if (account.userId !== user._id) throw new ConvexError({ code: "FORBIDDEN" });
 
-    if (!account) {
-      throw new Error("Account not found");
-    }
-    if (account.userId !== user._id) {
-      throw new Error("Not authorized");
-    }
-
-    // Build patch object with only provided fields
-    const patch: Record<string, any> = {};
+    const patch: Record<string, unknown> = {};
     if (name !== undefined) patch.name = name;
     if (type !== undefined) patch.type = type;
     if (color !== undefined) patch.color = color;
@@ -87,4 +84,4 @@ export const updateAccount = mutation({
 
     return id;
   },
-})
+});

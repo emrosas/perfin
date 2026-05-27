@@ -3,13 +3,14 @@ import { aggregateMonthlyTransactionsByUser } from "./schema";
 import { mutation, MutationCtx, query } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
 import { v } from "convex/values";
-import { authComponent } from "./auth";
+import { ConvexError } from "convex/values";
+import { requireAuth } from "./requireAuth";
 import { normalizeAmount, type TransactionCategory } from "@perfin/shared";
 
 export const getById = query({
   args: { id: v.id("transactions") },
   handler: async (ctx, { id }) => {
-    const user = await authComponent.getAuthUser(ctx);
+    const user = await requireAuth(ctx);
     const doc = await ctx.db.get(id);
     if (!doc || doc.userId !== user._id) return null;
     return doc;
@@ -17,16 +18,11 @@ export const getById = query({
 });
 
 export const listByAccount = query({
-  args: {
-    accountId: v.id("accounts"),
-  },
+  args: { accountId: v.id("accounts") },
   handler: async (ctx, { accountId }) => {
-    const user = await authComponent.getAuthUser(ctx);
-
+    const user = await requireAuth(ctx);
     const account = await ctx.db.get(accountId);
-    if (!account || account.userId !== user._id) {
-      throw new Error("Account not found");
-    }
+    if (!account || account.userId !== user._id) throw new ConvexError({ code: "FORBIDDEN" });
 
     return await ctx.db
       .query("transactions")
@@ -39,22 +35,21 @@ export const listByAccount = query({
 export const listMonthlyTransactions = query({
   args: {
     monthStart: v.string(),
-    monthEnd: v.string()
+    monthEnd: v.string(),
   },
   handler: async (ctx, { monthStart, monthEnd }) => {
-    const user = await authComponent.getAuthUser(ctx);
+    const user = await requireAuth(ctx);
 
     const page = await aggregateMonthlyTransactionsByUser.paginate(ctx, {
       bounds: {
         lower: { key: monthStart, inclusive: true },
-        upper: { key: monthEnd, inclusive: true }
+        upper: { key: monthEnd, inclusive: true },
       },
       namespace: user._id,
       order: "desc",
-      pageSize: 100
+      pageSize: 100,
     });
-    const transactions = await Promise.all(page.page.map((doc) => ctx.db.get(doc.id)));
-    return transactions;
+    return Promise.all(page.page.map((doc) => ctx.db.get(doc.id)));
   },
 });
 
@@ -138,9 +133,10 @@ export async function patchTransaction(
   const normalizedAmount = normalizeAmount(args.amount, args.category);
 
   // If accountId changed, fetch the new account; otherwise use the post-reversal balance
-  const newAccount = existing.accountId === args.accountId
-    ? { ...oldAccount, balance: oldAccount.balance - existing.amount }
-    : await ctx.db.get(args.accountId);
+  const newAccount =
+    existing.accountId === args.accountId
+      ? { ...oldAccount, balance: oldAccount.balance - existing.amount }
+      : await ctx.db.get(args.accountId);
   if (!newAccount) throw new Error("New account not found");
 
   await ctx.db.patch("accounts", args.accountId, {
@@ -192,12 +188,14 @@ export async function patchTransfer(
   await aggregateMonthlyTransactionsByUser.deleteIfExists(ctx, existing);
 
   // If account IDs changed, fetch fresh; otherwise use post-reversal balances
-  const newFrom = oldFromId === args.fromAccountId
-    ? { ...oldFrom, balance: oldFrom.balance + existing.amount }
-    : await ctx.db.get(args.fromAccountId);
-  const newTo = oldToId === args.toAccountId
-    ? { ...oldTo, balance: oldTo.balance - existing.amount }
-    : await ctx.db.get(args.toAccountId);
+  const newFrom =
+    oldFromId === args.fromAccountId
+      ? { ...oldFrom, balance: oldFrom.balance + existing.amount }
+      : await ctx.db.get(args.fromAccountId);
+  const newTo =
+    oldToId === args.toAccountId
+      ? { ...oldTo, balance: oldTo.balance - existing.amount }
+      : await ctx.db.get(args.toAccountId);
   if (!newFrom || !newTo) throw new Error("New accounts not found");
 
   await ctx.db.patch("accounts", args.fromAccountId, { balance: newFrom.balance - args.amount });
@@ -223,7 +221,7 @@ export async function patchTransfer(
  */
 export async function removeTransaction(
   ctx: MutationCtx,
-  id: Id<"transactions">,
+  id: Id<"transactions">
 ): Promise<Id<"transactions">> {
   const transaction = await ctx.db.get(id);
   if (!transaction) throw new Error("Transaction not found");
@@ -257,17 +255,18 @@ export async function removeTransaction(
 export const updateAccountBalance = mutation({
   args: {
     id: v.id("accounts"),
-    balance: v.number()
+    balance: v.number(),
   },
   handler: async (ctx, { id, balance }) => {
-    const user = await authComponent.getAuthUser(ctx);
+    const user = await requireAuth(ctx);
     const account = await ctx.db.get(id);
     if (!account) throw new Error("Account not found");
+    if (account.userId !== user._id) throw new ConvexError({ code: "FORBIDDEN" });
 
     const difference = balance - account.balance;
     if (difference === 0) return balance;
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split("T")[0];
     const category = difference > 0 ? "income" : "expense";
 
     return createTransaction(ctx, {
@@ -278,7 +277,7 @@ export const updateAccountBalance = mutation({
       accountId: id,
       userId: user._id,
     });
-  }
+  },
 });
 
 export const applyTransfer = mutation({
@@ -290,15 +289,14 @@ export const applyTransfer = mutation({
     toAccountId: v.id("accounts"),
   },
   handler: async (ctx, { amount, description, date, fromAccountId, toAccountId }) => {
-    const user = await authComponent.getAuthUser(ctx);
-
+    const user = await requireAuth(ctx);
     if (fromAccountId === toAccountId) throw new Error("From and to accounts must be different");
     if (amount <= 0) throw new Error("Amount must be greater than zero");
 
     const fromAccount = await ctx.db.get(fromAccountId);
     const toAccount = await ctx.db.get(toAccountId);
-    if (!fromAccount || fromAccount.userId !== user._id) throw new Error("From account not found");
-    if (!toAccount || toAccount.userId !== user._id) throw new Error("To account not found");
+    if (!fromAccount || fromAccount.userId !== user._id) throw new ConvexError({ code: "FORBIDDEN" });
+    if (!toAccount || toAccount.userId !== user._id) throw new ConvexError({ code: "FORBIDDEN" });
 
     await ctx.db.patch("accounts", fromAccountId, { balance: fromAccount.balance - amount });
     await ctx.db.patch("accounts", toAccountId, { balance: toAccount.balance + amount });
@@ -329,7 +327,7 @@ export const applyTransaction = mutation({
     expenseCategory: v.optional(v.string()),
   },
   handler: async (ctx, { amount, description, category, date, accountId, expenseCategory }) => {
-    const user = await authComponent.getAuthUser(ctx);
+    const user = await requireAuth(ctx);
     return createTransaction(ctx, {
       amount,
       description,
@@ -339,7 +337,7 @@ export const applyTransaction = mutation({
       userId: user._id,
       expenseCategory: category === "expense" ? expenseCategory : undefined,
     });
-  }
+  },
 });
 
 export const updateTransaction = mutation({
@@ -353,9 +351,9 @@ export const updateTransaction = mutation({
     expenseCategory: v.optional(v.string()),
   },
   handler: async (ctx, { id, amount, description, category, date, accountId, expenseCategory }) => {
-    const user = await authComponent.getAuthUser(ctx);
+    const user = await requireAuth(ctx);
     const existing = await ctx.db.get(id);
-    if (!existing || existing.userId !== user._id) throw new Error("Transaction not found");
+    if (!existing || existing.userId !== user._id) throw new ConvexError({ code: "FORBIDDEN" });
     return patchTransaction(ctx, {
       id,
       amount,
@@ -378,9 +376,9 @@ export const updateTransfer = mutation({
     toAccountId: v.id("accounts"),
   },
   handler: async (ctx, { id, amount, description, date, fromAccountId, toAccountId }) => {
-    const user = await authComponent.getAuthUser(ctx);
+    const user = await requireAuth(ctx);
     const existing = await ctx.db.get(id);
-    if (!existing || existing.userId !== user._id) throw new Error("Transaction not found");
+    if (!existing || existing.userId !== user._id) throw new ConvexError({ code: "FORBIDDEN" });
     if (existing.category !== "transfer") throw new Error("Not a transfer transaction");
     if (fromAccountId === toAccountId) throw new Error("Accounts must be different");
     if (amount <= 0) throw new Error("Amount must be greater than zero");
@@ -391,9 +389,9 @@ export const updateTransfer = mutation({
 export const deleteTransaction = mutation({
   args: { id: v.id("transactions") },
   handler: async (ctx, { id }) => {
-    const user = await authComponent.getAuthUser(ctx);
+    const user = await requireAuth(ctx);
     const existing = await ctx.db.get(id);
-    if (!existing || existing.userId !== user._id) throw new Error("Transaction not found");
+    if (!existing || existing.userId !== user._id) throw new ConvexError({ code: "FORBIDDEN" });
     return removeTransaction(ctx, id);
   },
 });
