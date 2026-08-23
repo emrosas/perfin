@@ -199,14 +199,14 @@
 	<!-- Fields grid -->
 	<div class="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-x-8 md:gap-y-6">
 		<!-- Title -->
-		<label class="flex flex-col gap-2">
+		<label class="flex min-w-0 flex-col gap-2">
 			<span class="text-dark text-sm font-medium">Title</span>
 			<div class="relative">
 				<input
 					type="text"
 					placeholder="Transaction title"
 					bind:value={description}
-					class="bg-muted text-dark placeholder:text-dark/30 w-full rounded-lg px-4 py-3 pr-10 font-mono text-base outline-none focus:ring-2 focus:ring-brand/30"
+					class="field bg-muted text-dark placeholder:text-dark/30 w-full rounded-lg px-4 py-3 pr-10 font-mono text-base outline-none focus:ring-2 focus:ring-brand/30"
 				/>
 				{#if description}
 					<button
@@ -221,7 +221,7 @@
 		</label>
 
 		<!-- Amount -->
-		<label class="flex flex-col gap-2">
+		<label class="flex min-w-0 flex-col gap-2">
 			<span class="text-dark text-sm font-medium">Amount</span>
 			<input
 				type="number"
@@ -229,27 +229,27 @@
 				step="0.01"
 				placeholder="0.00"
 				bind:value={amount}
-				class="bg-muted text-dark placeholder:text-dark/30 w-full rounded-lg px-4 py-3 font-mono text-base outline-none focus:ring-2 focus:ring-brand/30"
+				class="field bg-muted text-dark placeholder:text-dark/30 w-full rounded-lg px-4 py-3 font-mono text-base outline-none focus:ring-2 focus:ring-brand/30"
 			/>
 		</label>
 
 		<!-- Date -->
-		<label class="flex flex-col gap-2">
+		<label class="flex min-w-0 flex-col gap-2">
 			<span class="text-dark text-sm font-medium">Date</span>
 			<input
 				type="date"
 				bind:value={date}
-				class="bg-muted text-dark placeholder:text-dark/30 w-full rounded-lg px-4 py-3 font-mono text-base outline-none focus:ring-2 focus:ring-brand/30"
+				class="field bg-muted text-dark placeholder:text-dark/30 w-full rounded-lg px-4 py-3 font-mono text-base outline-none focus:ring-2 focus:ring-brand/30"
 			/>
 		</label>
 
 		{#if category === 'transfer'}
 			<!-- From Account -->
-			<label class="flex flex-col gap-2">
+			<label class="flex min-w-0 flex-col gap-2">
 				<span class="text-dark text-sm font-medium">From Account</span>
 				<select
 					bind:value={fromAccountId}
-					class="bg-muted text-dark w-full rounded-lg px-4 py-3 text-base outline-none focus:ring-2 focus:ring-brand/30"
+					class="field bg-muted text-dark w-full rounded-lg px-4 py-3 text-base outline-none focus:ring-2 focus:ring-brand/30"
 				>
 					<option value="">Select Account</option>
 					{#each currentUserAccounts.data ?? [] as account (account._id)}
@@ -259,11 +259,11 @@
 			</label>
 
 			<!-- To Account -->
-			<label class="flex flex-col gap-2">
+			<label class="flex min-w-0 flex-col gap-2">
 				<span class="text-dark text-sm font-medium">To Account</span>
 				<select
 					bind:value={accountId}
-					class="bg-muted text-dark w-full rounded-lg px-4 py-3 text-base outline-none focus:ring-2 focus:ring-brand/30"
+					class="field bg-muted text-dark w-full rounded-lg px-4 py-3 text-base outline-none focus:ring-2 focus:ring-brand/30"
 				>
 					<option value="">Select Account</option>
 					{#each (currentUserAccounts.data ?? []).filter((a) => a._id !== fromAccountId) as account (account._id)}
@@ -273,11 +273,11 @@
 			</label>
 		{:else}
 			<!-- Account -->
-			<label class="flex flex-col gap-2">
+			<label class="flex min-w-0 flex-col gap-2">
 				<span class="text-dark text-sm font-medium">Account</span>
 				<select
 					bind:value={accountId}
-					class="bg-muted text-dark w-full rounded-lg px-4 py-3 text-base outline-none focus:ring-2 focus:ring-brand/30"
+					class="field bg-muted text-dark w-full rounded-lg px-4 py-3 text-base outline-none focus:ring-2 focus:ring-brand/30"
 				>
 					<option value="">Select Account</option>
 					{#each currentUserAccounts.data ?? [] as account (account._id)}
@@ -288,11 +288,11 @@
 
 			{#if category === 'expense'}
 				<!-- Expense Category -->
-				<label class="flex flex-col gap-2">
+				<label class="flex min-w-0 flex-col gap-2">
 					<span class="text-dark text-sm font-medium">Category</span>
 					<select
 						bind:value={expenseCategory}
-						class="bg-muted text-dark w-full rounded-lg px-4 py-3 text-base outline-none focus:ring-2 focus:ring-brand/30"
+						class="field bg-muted text-dark w-full rounded-lg px-4 py-3 text-base outline-none focus:ring-2 focus:ring-brand/30"
 					>
 						{#each EXPENSE_CATEGORIES as cat (cat.key)}
 							<option value={cat.key}>{cat.label}</option>

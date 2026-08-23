@@ -178,7 +178,7 @@
 								step="0.01"
 								placeholder="e.g. 24.5"
 								bind:value={apr}
-								class="w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
+								class="field w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
 							/>
 						</label>
 
@@ -191,7 +191,7 @@
 								step="1"
 								placeholder="e.g. 15"
 								bind:value={paymentDueDay}
-								class="w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
+								class="field w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
 							/>
 						</label>
 
@@ -203,7 +203,7 @@
 								step="0.01"
 								placeholder="e.g. 16 for Mexico IVA"
 								bind:value={interestTaxRatePct}
-								class="w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
+								class="field w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
 							/>
 						</label>
 
@@ -215,7 +215,7 @@
 								step="0.01"
 								placeholder="e.g. 30000"
 								bind:value={creditLimit}
-								class="w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
+								class="field w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
 							/>
 						</label>
 					</div>
@@ -247,7 +247,7 @@
 							type="text"
 							placeholder="Account name"
 							bind:value={name}
-							class="w-full rounded-lg bg-muted px-4 py-3 pr-10 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
+							class="field w-full rounded-lg bg-muted px-4 py-3 pr-10 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
 						/>
 						{#if name}
 							<button
@@ -271,7 +271,7 @@
 						step="0.01"
 						placeholder="0.00"
 						bind:value={balance}
-						class="w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
+						class="field w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
 					/>
 				</label>
 

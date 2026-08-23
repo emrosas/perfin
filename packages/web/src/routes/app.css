@@ -23,3 +23,23 @@
 		background-position: 50% 100%;
 	}
 }
+
+/* Form fields — shared box so every input and select lines up.
+   WebKit gives date inputs their own intrinsic width, which overflows a narrow
+   grid column on mobile, and their own intrinsic height. Pinning the box and
+   resetting the appearance makes them size like the text inputs beside them. */
+.field {
+	height: 3rem;
+	width: 100%;
+	min-width: 0;
+}
+
+input.field[type='date'] {
+	-webkit-appearance: none;
+	appearance: none;
+}
+
+input.field[type='date']::-webkit-date-and-time-value {
+	text-align: start;
+	margin: 0;
+}

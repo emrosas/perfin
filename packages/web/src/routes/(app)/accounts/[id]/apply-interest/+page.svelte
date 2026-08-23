@@ -125,7 +125,7 @@
 						step="0.01"
 						placeholder="0.00"
 						bind:value={amount}
-						class="w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
+						class="field w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
 					/>
 				</label>
 
@@ -134,7 +134,7 @@
 					<input
 						type="text"
 						bind:value={description}
-						class="w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
+						class="field w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
 					/>
 				</label>
 
@@ -142,7 +142,7 @@
 					<span class="text-sm font-medium text-dark">Category</span>
 					<select
 						bind:value={expenseCategory}
-						class="w-full rounded-lg bg-muted px-4 py-3 text-base text-dark outline-none focus:ring-2 focus:ring-brand/30"
+						class="field w-full rounded-lg bg-muted px-4 py-3 text-base text-dark outline-none focus:ring-2 focus:ring-brand/30"
 					>
 						{#each EXPENSE_CATEGORIES as cat (cat.key)}
 							<option value={cat.key}>{cat.label}</option>

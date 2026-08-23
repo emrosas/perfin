@@ -69,7 +69,7 @@
 					type="text"
 					placeholder="e.g. Spotify"
 					bind:value={name}
-					class="w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
+					class="field w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
 				/>
 			</label>
 
@@ -81,7 +81,7 @@
 					step="0.01"
 					placeholder="0.00"
 					bind:value={amount}
-					class="w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
+					class="field w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
 				/>
 			</label>
 
@@ -92,7 +92,7 @@
 				{:else}
 					<select
 						bind:value={accountId}
-						class="w-full rounded-lg bg-muted px-4 py-3 text-base text-dark outline-none focus:ring-2 focus:ring-brand/30"
+						class="field w-full rounded-lg bg-muted px-4 py-3 text-base text-dark outline-none focus:ring-2 focus:ring-brand/30"
 					>
 						<option value="">Select account</option>
 						{#each currentUserAccounts.data ?? [] as acc (acc._id)}
@@ -106,7 +106,7 @@
 				<span class="text-sm font-medium text-dark">Category</span>
 				<select
 					bind:value={expenseCategory}
-					class="w-full rounded-lg bg-muted px-4 py-3 text-base text-dark outline-none focus:ring-2 focus:ring-brand/30"
+					class="field w-full rounded-lg bg-muted px-4 py-3 text-base text-dark outline-none focus:ring-2 focus:ring-brand/30"
 				>
 					{#each EXPENSE_CATEGORIES as cat (cat.key)}
 						<option value={cat.key}>{cat.label}</option>
@@ -123,7 +123,7 @@
 					step="1"
 					placeholder="e.g. 15"
 					bind:value={dayOfMonth}
-					class="w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
+					class="field w-full rounded-lg bg-muted px-4 py-3 font-mono text-base text-dark outline-none placeholder:text-dark/30 focus:ring-2 focus:ring-brand/30"
 				/>
 				<p class="text-xs text-dark/40">The day this payment is charged each month.</p>
 			</label>
