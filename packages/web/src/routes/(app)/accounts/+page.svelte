@@ -4,6 +4,7 @@
 	import { getUserAccounts } from '../../../context';
 	import AccountCard from '$components/accountCard.svelte';
 	import DueRecurringPaymentStack from '$components/dueRecurringPaymentStack.svelte';
+	import PlusIcon from '$components/icons/plus.svelte';
 	import { EXPENSE_CATEGORIES, CATEGORY_MAP } from '$lib/categories';
 	import UtensilsIcon from '@lucide/svelte/icons/utensils';
 	import ZapIcon from '@lucide/svelte/icons/zap';
@@ -192,16 +193,10 @@
 				type="button"
 				onclick={openPicker}
 				disabled={unbudgetedCategories.length === 0}
-				class="text-brand transition-colors disabled:text-brand/30"
+				class="bg-brand flex size-7 shrink-0 items-center justify-center rounded-full text-white transition-opacity active:opacity-70 disabled:bg-brand/30"
 				aria-label="Add category budget"
 			>
-				<svg class="size-7" viewBox="0 0 24 24" fill="currentColor">
-					<path
-						fill-rule="evenodd"
-						d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 11h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H8a1 1 0 110-2h3V8a1 1 0 112 0v3z"
-						clip-rule="evenodd"
-					/>
-				</svg>
+				<PlusIcon class="size-5" />
 			</button>
 		</div>
 
@@ -271,14 +266,8 @@
 	<section class="mb-10">
 		<div class="mb-4 flex items-center justify-between">
 			<h2 class="text-2xl font-bold text-dark">Recurring</h2>
-			<a href="/recurring/new" class="text-brand transition-colors" aria-label="New recurring payment">
-				<svg class="size-7" viewBox="0 0 24 24" fill="currentColor">
-					<path
-						fill-rule="evenodd"
-						d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 11h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H8a1 1 0 110-2h3V8a1 1 0 112 0v3z"
-						clip-rule="evenodd"
-					/>
-				</svg>
+			<a href="/recurring/new" class="bg-brand flex size-7 shrink-0 items-center justify-center rounded-full text-white transition-opacity active:opacity-70" aria-label="New recurring payment">
+				<PlusIcon class="size-5" />
 			</a>
 		</div>
 
@@ -323,14 +312,8 @@
 	<section>
 		<div class="mb-4 flex items-center justify-between">
 			<h2 class="text-2xl font-bold text-dark">Accounts</h2>
-			<a href="/accounts/new" class="text-brand transition-colors" aria-label="New account">
-				<svg class="size-7" viewBox="0 0 24 24" fill="currentColor">
-					<path
-						fill-rule="evenodd"
-						d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 11h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H8a1 1 0 110-2h3V8a1 1 0 112 0v3z"
-						clip-rule="evenodd"
-					/>
-				</svg>
+			<a href="/accounts/new" class="bg-brand flex size-7 shrink-0 items-center justify-center rounded-full text-white transition-opacity active:opacity-70" aria-label="New account">
+				<PlusIcon class="size-5" />
 			</a>
 		</div>
 
