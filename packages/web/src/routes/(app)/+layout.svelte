@@ -12,7 +12,7 @@
 	setUserAccounts(currentUserAccounts);
 </script>
 
-<div class="flex h-screen w-full overflow-hidden bg-background">
+<div class="flex h-dvh w-full overflow-hidden bg-background">
 	<div class="hidden md:contents">
 		<Sidebar />
 	</div>

@@ -26,6 +26,6 @@
 	<meta name="robots" content="noindex, nofollow" />
 </svelte:head>
 
-<div class="flex h-screen flex-col">
+<div class="flex min-h-dvh flex-col">
 	{@render children()}
 </div>
